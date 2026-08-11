@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Trussium Helm values",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "replicaCount",
+    "revisionHistoryLimit",
+    "image",
+    "imagePullSecrets",
+    "serviceAccount",
+    "podSecurityContext",
+    "securityContext",
+    "service",
+    "runtime",
+    "timeouts",
+    "providerSecret",
+    "startupProbe",
+    "livenessProbe",
+    "readinessProbe",
+    "resources",
+    "deploymentStrategy",
+    "podDisruptionBudget",
+    "terminationGracePeriodSeconds",
+    "topologySpreadConstraints"
+  ],
+  "properties": {
+    "replicaCount": {"type": "integer", "minimum": 1},
+    "revisionHistoryLimit": {"type": "integer", "minimum": 0},
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "pullPolicy", "tag"],
+      "properties": {
+        "repository": {"type": "string", "minLength": 1},
+        "pullPolicy": {"type": "string", "enum": ["Always", "IfNotPresent", "Never"]},
+        "tag": {"type": "string"}
+      }
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {"name": {"type": "string", "minLength": 1}}
+      }
+    },
+    "nameOverride": {"type": "string"},
+    "fullnameOverride": {"type": "string"},
+    "serviceAccount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["create", "automount", "annotations", "name"],
+      "properties": {
+        "create": {"type": "boolean"},
+        "automount": {"type": "boolean"},
+        "annotations": {"type": "object", "additionalProperties": {"type": "string"}},
+        "name": {"type": "string"}
+      }
+    },
+    "podAnnotations": {"type": "object", "additionalProperties": {"type": "string"}},
+    "podLabels": {"type": "object", "additionalProperties": {"type": "string"}},
+    "podSecurityContext": {"type": "object"},
+    "securityContext": {"type": "object"},
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "port", "annotations"],
+      "properties": {
+        "type": {"type": "string", "enum": ["ClusterIP", "NodePort", "LoadBalancer"]},
+        "port": {"type": "integer", "minimum": 1, "maximum": 65535},
+        "annotations": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["environment", "host", "port", "gracefulShutdownSeconds"],
+      "properties": {
+        "environment": {"type": "string", "minLength": 1},
+        "host": {"type": "string", "minLength": 1},
+        "port": {"type": "integer", "minimum": 1, "maximum": 65535},
+        "gracefulShutdownSeconds": {"type": "integer", "minimum": 0}
+      }
+    },
+    "timeouts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["providerRequestSeconds", "streamIdleSeconds"],
+      "properties": {
+        "providerRequestSeconds": {"type": "integer", "minimum": 1},
+        "streamIdleSeconds": {"type": "integer", "minimum": 1}
+      }
+    },
+    "providerSecret": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "optional"],
+      "properties": {
+        "name": {"type": "string"},
+        "optional": {"type": "boolean"}
+      }
+    },
+    "extraConfig": {"type": "object", "additionalProperties": {"type": ["string", "number", "boolean"]}},
+    "extraEnv": {"type": "array", "items": {"type": "object"}},
+    "extraEnvFrom": {"type": "array", "items": {"type": "object"}},
+    "startupProbe": {"$ref": "#/definitions/probe"},
+    "livenessProbe": {"$ref": "#/definitions/probe"},
+    "readinessProbe": {"$ref": "#/definitions/probe"},
+    "resources": {"type": "object"},
+    "deploymentStrategy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {"type": "string", "enum": ["RollingUpdate", "Recreate"]},
+        "rollingUpdate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["maxUnavailable", "maxSurge"],
+          "properties": {
+            "maxUnavailable": {"type": ["integer", "string"]},
+            "maxSurge": {"type": ["integer", "string"]}
+          }
+        }
+      }
+    },
+    "podDisruptionBudget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "maxUnavailable"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "maxUnavailable": {"type": ["integer", "string"]}
+      }
+    },
+    "terminationGracePeriodSeconds": {"type": "integer", "minimum": 6},
+    "topologySpreadConstraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["maxSkew", "topologyKey", "whenUnsatisfiable"],
+        "properties": {
+          "maxSkew": {"type": "integer", "minimum": 1},
+          "topologyKey": {"type": "string", "minLength": 1},
+          "whenUnsatisfiable": {"type": "string", "enum": ["DoNotSchedule", "ScheduleAnyway"]}
+        }
+      }
+    },
+    "nodeSelector": {"type": "object", "additionalProperties": {"type": "string"}},
+    "tolerations": {"type": "array", "items": {"type": "object"}},
+    "affinity": {"type": "object"},
+    "priorityClassName": {"type": "string"}
+  },
+  "definitions": {
+    "probe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "periodSeconds", "timeoutSeconds", "failureThreshold"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "periodSeconds": {"type": "integer", "minimum": 1},
+        "timeoutSeconds": {"type": "integer", "minimum": 1},
+        "failureThreshold": {"type": "integer", "minimum": 1}
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+apiVersion: v2
+name: trussium
+description: Official Helm chart for deploying the Trussium AI runtime.
+type: application
+version: 0.0.0
+appVersion: "0.24.0"
+kubeVersion: ">=1.25.0-0"
+home: https://github.com/trussiumhq/trussium
+sources:
+  - https://github.com/trussiumhq/trussium
+  - https://github.com/trussiumhq/trussium-helm
+maintainers:
+  - name: Trussium Contributors
+    url: https://github.com/trussiumhq
+annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/category: ai-machine-learning
+  artifacthub.io/operator: "false"
