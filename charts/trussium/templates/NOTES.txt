@@ -14,5 +14,11 @@ Reach the runtime locally:
 {{- if .Values.observability.metrics.enabled }}
   curl http://127.0.0.1:9000/metrics
 {{- end }}
+{{- if .Values.observability.tracing.enabled }}
+
+OpenTelemetry trace export is enabled for service {{ .Values.observability.tracing.serviceName }}.
+Confirm that the runtime network can reach {{ .Values.observability.tracing.otlpTracesEndpoint }}.
+This chart does not install an OpenTelemetry Collector or tracing backend.
+{{- end }}
 
 This chart installs the Trussium runtime only. It does not install trussium-operator.

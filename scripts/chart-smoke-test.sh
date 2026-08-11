@@ -138,6 +138,12 @@ assert_equal "$(kubectl --context "$context" --namespace "$namespace" get deploy
     "true" "read-only root filesystem"
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get poddisruptionbudget trussium \
     -o jsonpath='{.spec.maxUnavailable}')" "1" "maximum unavailable pods"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_OBSERVABILITY__TRACING_ENABLED}')" \
+    "false" "default tracing enablement"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME}')" \
+    "trussium" "default tracing service name"
 
 port="$(python3 -c 'import socket; sock = socket.socket(); sock.bind(("127.0.0.1", 0)); print(sock.getsockname()[1]); sock.close()')"
 kubectl --context "$context" --namespace "$namespace" port-forward service/trussium \
@@ -178,7 +184,11 @@ port_forward_pid=""
 
 helm --kube-context "$context" upgrade "$release" "$repository_root/charts/trussium" \
     --namespace "$namespace" --values "$values" --set autoscaling.enabled=false \
-    --set replicaCount=3 --wait --timeout 180s
+    --set replicaCount=3 --set observability.tracing.enabled=true \
+    --set observability.tracing.serviceName=trussium-upgraded \
+    --set-json observability.tracing.sampleRatio=0.25 \
+    --set-string observability.tracing.otlpTracesEndpoint=http://collector.example:4318/v1/traces \
+    --set-json observability.tracing.otlpExportTimeoutSeconds=2.5 --wait --timeout 180s
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get deployment trussium \
     -o jsonpath='{.status.readyReplicas}')" "3" "ready replicas after upgrade"
 if kubectl --context "$context" --namespace "$namespace" \
@@ -186,11 +196,29 @@ if kubectl --context "$context" --namespace "$namespace" \
     echo "HorizontalPodAutoscaler remained after fixed-replica upgrade" >&2
     exit 1
 fi
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_OBSERVABILITY__TRACING_ENABLED}')" \
+    "true" "upgraded tracing enablement"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME}')" \
+    "trussium-upgraded" "upgraded tracing service name"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_OBSERVABILITY__TRACING_SAMPLE_RATIO}')" \
+    "0.25" "upgraded trace sample ratio"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_OBSERVABILITY__OTLP_TRACES_ENDPOINT}')" \
+    "http://collector.example:4318/v1/traces" "upgraded OTLP traces endpoint"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_OBSERVABILITY__OTLP_EXPORT_TIMEOUT_SECONDS}')" \
+    "2.5" "upgraded OTLP export timeout"
 
 helm --kube-context "$context" rollback "$release" 1 --namespace "$namespace" --wait --timeout 180s
 wait_for_autoscaling
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get deployment trussium \
     -o jsonpath='{.status.readyReplicas}')" "2" "ready replicas after rollback"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_OBSERVABILITY__TRACING_ENABLED}')" \
+    "false" "tracing enablement after rollback"
 
 helm --kube-context "$context" uninstall "$release" --namespace "$namespace" --wait
 if kubectl --context "$context" --namespace "$namespace" get deployment trussium >/dev/null 2>&1; then

@@ -1,11 +1,17 @@
 replicaCount: 3
 image:
-  tag: "0.25.0"
+  tag: "0.26.0"
 autoscaling:
   enabled: false
 observability:
   metrics:
     enabled: false
+  tracing:
+    enabled: true
+    serviceName: trussium-custom
+    sampleRatio: 0.25
+    otlpTracesEndpoint: https://collector.example/v1/traces
+    otlpExportTimeoutSeconds: 2.5
 imagePullSecrets: []
 fullnameOverride: trussium-custom
 serviceAccount:

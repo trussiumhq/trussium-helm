@@ -68,6 +68,7 @@ The chart defaults to the compatible runtime release in `Chart.yaml`'s
 
 | Chart release | Default runtime | Kubernetes |
 | --- | --- | --- |
+| `0.3.x` | `0.26.x` | `>=1.25` |
 | `0.2.x` | `0.25.x` | `>=1.25` |
 | `0.1.x` | `0.24.x` | `>=1.25` |
 
@@ -146,6 +147,14 @@ resources:
 timeouts:
   providerRequestSeconds: 90
   streamIdleSeconds: 45
+
+observability:
+  tracing:
+    enabled: true
+    serviceName: trussium
+    sampleRatio: 0.1
+    otlpTracesEndpoint: http://otel-collector.observability.svc:4318/v1/traces
+    otlpExportTimeoutSeconds: 5
 ```
 
 The chart enables runtime metrics at `/metrics` and CPU-based horizontal
@@ -163,6 +172,16 @@ bounds and target instead. See the
 [runtime metrics guide](https://github.com/trussiumhq/trussium/blob/main/docs/METRICS.md)
 for the bounded Prometheus-compatible metric contract and optional custom
 metrics extension point.
+
+OpenTelemetry tracing is disabled by default. The chart can render runtime
+trace enablement, service name, parent-based sample ratio, OTLP HTTP/protobuf
+traces endpoint, and export timeout, but it does not install a collector or
+tracing backend. Supply a collector endpoint reachable from runtime pods and
+choose sampling and retention policies appropriate to the cluster. Do not put
+collector credentials in `extraConfig`; use an organization-managed network
+or secret-based integration outside the chart. See the
+[runtime tracing guide](https://github.com/trussiumhq/trussium/blob/main/docs/TRACING.md)
+for span, privacy, lifecycle, and current propagation contracts.
 
 The complete value reference is in the
 [chart README](charts/trussium/README.md). `values.schema.json` rejects unknown
@@ -220,10 +239,10 @@ scripts/helm-validate.sh
 scripts/chart-package.sh
 ```
 
-The complete Kind lifecycle test builds runtime `v0.25.0` from a neighboring
+The complete Kind lifecycle test builds runtime `v0.26.0` from a neighboring
 checkout, installs pinned Metrics Server v0.8.1, and validates install, live
-autoscaling, runtime metrics, readiness, HTTP request correlation, fixed-scale
-upgrade, autoscaling rollback, and uninstall:
+autoscaling, runtime metrics, tracing configuration, readiness, HTTP request
+correlation, fixed-scale upgrade, autoscaling rollback, and uninstall:
 
 ```bash
 TRUSSIUM_RUNTIME_SOURCE=../trussium scripts/chart-smoke-test.sh

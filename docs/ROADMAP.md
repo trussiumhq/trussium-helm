@@ -9,7 +9,7 @@ remains a separate project.
 
 ## Current focus
 
-The production Helm chart now carries the validated Trussium v0.25.0
+The production Helm chart now carries the validated Trussium v0.26.0
 Kubernetes contract into an independently released distribution:
 
 - Hardened autoscaled runtime pods with a two-replica availability floor.
@@ -27,6 +27,12 @@ Kubernetes contract into an independently released distribution:
 - Fixed-replica fallback when autoscaling is disabled.
 - Pinned Metrics Server Kind validation covering live HPA activation, upgrade,
   rollback, and removal.
+- OpenTelemetry tracing values for enablement, service identity, parent-based
+  sampling, OTLP HTTP/protobuf endpoint, and export timeout.
+- Tracing-disabled defaults until an operator supplies a reachable collector
+  with an intentional sampling and retention policy.
+- Schema, render, package, and Kind upgrade/rollback validation for the full
+  tracing configuration contract without chart-owned collector resources.
 
 The immediate focus is runtime compatibility operations: automated runtime
 version proposals, an explicit compatibility matrix, release recovery
@@ -57,6 +63,7 @@ runbooks, and validation across supported Kubernetes minor versions.
 **Status:** In Progress
 
 - [x] Configurable HorizontalPodAutoscaler support after runtime metrics exist.
+- [x] Configurable OpenTelemetry runtime tracing after instrumentation exists.
 - Optional NetworkPolicy after supported network contracts are defined.
 - Optional ServiceMonitor after observability endpoints stabilize.
 - Optional Ingress integration without owning certificate issuance.

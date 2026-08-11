@@ -6,6 +6,7 @@ import tomllib
 from pathlib import Path
 from typing import Any, cast
 
+import pytest
 import yaml
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
@@ -46,7 +47,7 @@ def test_chart_metadata_tracks_runtime_independently() -> None:
     assert metadata["type"] == "application"
     assert re.fullmatch(r"\d+\.\d+\.\d+", metadata["version"])
     assert metadata["version"] == project["project"]["version"]
-    assert metadata["appVersion"] == "0.25.0"
+    assert metadata["appVersion"] == "0.26.0"
     assert metadata["annotations"]["artifacthub.io/operator"] == "false"
 
 
@@ -76,7 +77,7 @@ def test_default_render_preserves_production_runtime_contract() -> None:
     assert pod_spec["securityContext"]["runAsGroup"] == 10001
     assert pod_spec["securityContext"]["seccompProfile"]["type"] == "RuntimeDefault"
     assert pod_spec["imagePullSecrets"] == [{"name": "ghcr-credentials"}]
-    assert container["image"] == "ghcr.io/trussiumhq/trussium:0.25.0"
+    assert container["image"] == "ghcr.io/trussiumhq/trussium:0.26.0"
     assert container["ports"][0]["containerPort"] == 9000
     assert container["securityContext"]["readOnlyRootFilesystem"] is True
     assert container["securityContext"]["capabilities"]["drop"] == ["ALL"]
@@ -106,6 +107,14 @@ def test_default_render_preserves_production_runtime_contract() -> None:
 
     config_map = resource(documents, "ConfigMap")
     assert config_map["data"]["TRUSSIUM_OBSERVABILITY__METRICS_ENABLED"] == "true"
+    assert config_map["data"]["TRUSSIUM_OBSERVABILITY__TRACING_ENABLED"] == "false"
+    assert config_map["data"]["TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME"] == "trussium"
+    assert config_map["data"]["TRUSSIUM_OBSERVABILITY__TRACING_SAMPLE_RATIO"] == "1"
+    assert (
+        config_map["data"]["TRUSSIUM_OBSERVABILITY__OTLP_TRACES_ENDPOINT"]
+        == "http://127.0.0.1:4318/v1/traces"
+    )
+    assert config_map["data"]["TRUSSIUM_OBSERVABILITY__OTLP_EXPORT_TIMEOUT_SECONDS"] == "10"
 
     autoscaler = resource(documents, "HorizontalPodAutoscaler")
     assert autoscaler["apiVersion"] == "autoscaling/v2"
@@ -177,6 +186,14 @@ def test_custom_values_render_supported_integrations() -> None:
 
     config_map = resource(documents, "ConfigMap")
     assert config_map["data"]["TRUSSIUM_OBSERVABILITY__METRICS_ENABLED"] == "false"
+    assert config_map["data"]["TRUSSIUM_OBSERVABILITY__TRACING_ENABLED"] == "true"
+    assert config_map["data"]["TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME"] == "trussium-custom"
+    assert config_map["data"]["TRUSSIUM_OBSERVABILITY__TRACING_SAMPLE_RATIO"] == "0.25"
+    assert (
+        config_map["data"]["TRUSSIUM_OBSERVABILITY__OTLP_TRACES_ENDPOINT"]
+        == "https://collector.example/v1/traces"
+    )
+    assert config_map["data"]["TRUSSIUM_OBSERVABILITY__OTLP_EXPORT_TIMEOUT_SECONDS"] == "2.5"
 
 
 def test_chart_does_not_render_credentials() -> None:
@@ -229,13 +246,41 @@ def test_schema_rejects_unknown_observability_values() -> None:
         "trussium",
         str(CHART),
         "--set",
-        "observability.metrics.unexpected=true",
+        "observability.tracing.unexpected=true",
         check=False,
     )
 
     assert result.returncode != 0
     assert "unexpected" in result.stderr
     assert "Additional property" in result.stderr
+
+
+@pytest.mark.parametrize(
+    ("flag", "setting", "value"),
+    [
+        ("--set-string", "serviceName", ""),
+        ("--set", "sampleRatio", "-0.1"),
+        ("--set", "sampleRatio", "1.1"),
+        ("--set-string", "otlpTracesEndpoint", "grpc://collector:4317"),
+        ("--set", "otlpExportTimeoutSeconds", "0"),
+    ],
+)
+def test_schema_rejects_invalid_tracing_values(
+    flag: str,
+    setting: str,
+    value: str,
+) -> None:
+    result = run_helm(
+        "template",
+        "trussium",
+        str(CHART),
+        flag,
+        f"observability.tracing.{setting}={value}",
+        check=False,
+    )
+
+    assert result.returncode != 0
+    assert setting in result.stderr
 
 
 def test_template_rejects_inverted_autoscaling_bounds() -> None:
