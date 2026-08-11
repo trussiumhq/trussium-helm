@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    name: Semantic Chart Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.16.3
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Capture current release tag
+        id: previous-release
+        run: |
+          tag="$(git tag --list 'v*' --sort=-version:refname | head -n 1)"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Run Semantic Release
+        env:
+          GH_TOKEN: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+        run: uv run semantic-release version
+
+      - name: Detect a newly created release
+        id: release
+        env:
+          PREVIOUS_RELEASE_TAG: ${{ steps.previous-release.outputs.tag }}
+        run: |
+          git fetch --force --tags origin
+          tag="$(git tag --list 'v*' --sort=-version:refname | head -n 1)"
+          if [ "$tag" != "$PREVIOUS_RELEASE_TAG" ]; then
+            echo "tag=$tag" >> "$GITHUB_OUTPUT"
+            echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate release package
+        if: steps.release.outputs.tag != ''
+        run: scripts/package-smoke-test.sh "$GITHUB_WORKSPACE/dist"
+
+      - name: Publish GitHub release assets
+        if: steps.release.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: uv run semantic-release publish --tag "$RELEASE_TAG"
+
+      - name: Authenticate to GitHub Container Registry
+        if: steps.release.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: printf '%s' "$GH_TOKEN" | helm registry login ghcr.io --username "${{ github.actor }}" --password-stdin
+
+      - name: Publish OCI chart
+        if: steps.release.outputs.tag != ''
+        env:
+          CHART_VERSION: ${{ steps.release.outputs.version }}
+        run: helm push "dist/trussium-${CHART_VERSION}.tgz" oci://ghcr.io/trussiumhq/charts

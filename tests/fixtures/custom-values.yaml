@@ -1,0 +1,33 @@
+replicaCount: 3
+image:
+  tag: "0.24.0"
+imagePullSecrets: []
+fullnameOverride: trussium-custom
+serviceAccount:
+  create: false
+  name: trussium-existing
+service:
+  type: LoadBalancer
+  port: 8080
+  annotations:
+    example.com/service: custom
+providerSecret:
+  name: organization-provider-secret
+  optional: false
+extraConfig:
+  TRUSSIUM_LOG_LEVEL: INFO
+extraEnv:
+  - name: EXAMPLE_DIRECT_VALUE
+    value: enabled
+podAnnotations:
+  example.com/restarted-at: "2026-08-11T00:00:00Z"
+podLabels:
+  example.com/tier: serving
+nodeSelector:
+  kubernetes.io/os: linux
+tolerations:
+  - key: workload
+    operator: Equal
+    value: ai
+    effect: NoSchedule
+priorityClassName: production-runtime

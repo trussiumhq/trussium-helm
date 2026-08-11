@@ -1,0 +1,106 @@
+replicaCount: 2
+revisionHistoryLimit: 3
+
+image:
+  repository: ghcr.io/trussiumhq/trussium
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets:
+  - name: ghcr-credentials
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 9000
+  annotations: {}
+
+runtime:
+  environment: production
+  host: 0.0.0.0
+  port: 9000
+  gracefulShutdownSeconds: 30
+
+timeouts:
+  providerRequestSeconds: 60
+  streamIdleSeconds: 30
+
+providerSecret:
+  name: trussium-provider
+  optional: true
+
+extraConfig: {}
+extraEnv: []
+extraEnvFrom: []
+
+startupProbe:
+  enabled: true
+  periodSeconds: 2
+  timeoutSeconds: 1
+  failureThreshold: 30
+
+livenessProbe:
+  enabled: true
+  periodSeconds: 10
+  timeoutSeconds: 2
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  periodSeconds: 5
+  timeoutSeconds: 2
+  failureThreshold: 3
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
+
+deploymentStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 0
+    maxSurge: 1
+
+podDisruptionBudget:
+  enabled: true
+  maxUnavailable: 1
+
+terminationGracePeriodSeconds: 36
+
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+priorityClassName: ""
