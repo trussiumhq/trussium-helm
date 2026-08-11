@@ -34,6 +34,11 @@ default compatible runtime image.
 | `timeouts.providerRequestSeconds` | `60` | Provider request deadline. |
 | `timeouts.streamIdleSeconds` | `30` | Streaming event idle deadline. |
 | `observability.metrics.enabled` | `true` | Expose runtime metrics at `/metrics`. |
+| `observability.tracing.enabled` | `false` | Enable runtime OpenTelemetry tracing and OTLP export. |
+| `observability.tracing.serviceName` | `trussium` | OpenTelemetry `service.name`. |
+| `observability.tracing.sampleRatio` | `1.0` | Parent-based root sampling probability from zero through one. |
+| `observability.tracing.otlpTracesEndpoint` | `http://127.0.0.1:4318/v1/traces` | Full OTLP HTTP/protobuf traces endpoint. |
+| `observability.tracing.otlpExportTimeoutSeconds` | `10` | Positive OTLP export request timeout. |
 | `autoscaling.enabled` | `true` | Create the runtime HorizontalPodAutoscaler. |
 | `autoscaling.minReplicas` | `2` | Autoscaling availability floor. |
 | `autoscaling.maxReplicas` | `10` | Autoscaling replica ceiling. |
@@ -80,3 +85,33 @@ replicaCount: 3
 Runtime metrics remain independently configurable through
 `observability.metrics.enabled`. The chart does not install Prometheus,
 Prometheus Adapter, ServiceMonitor, or other monitoring resources.
+
+## OpenTelemetry tracing
+
+Tracing remains disabled by default because the chart does not install an
+OpenTelemetry Collector or tracing backend. Enable it only after supplying an
+endpoint reachable from the runtime pod network:
+
+```yaml
+observability:
+  tracing:
+    enabled: true
+    serviceName: trussium
+    sampleRatio: 0.1
+    otlpTracesEndpoint: http://otel-collector.observability.svc:4318/v1/traces
+    otlpExportTimeoutSeconds: 5
+```
+
+The settings are rendered into the non-secret ConfigMap. The schema requires a
+non-blank service name, a sample ratio from `0` through `1`, an HTTP or HTTPS
+endpoint, and a positive timeout. The loopback default points to the runtime
+pod itself and is safe only while tracing is disabled or when a collector
+sidecar intentionally listens there.
+
+The chart does not accept OTLP credentials. Do not place authentication values
+in `extraConfig`; integrate collector authentication through organization-owned
+network and secret controls. The runtime excludes health and metrics traffic
+and does not attach prompts, bodies, credentials, query strings, raw URLs, or
+exception messages to spans. See the
+[runtime tracing guide](https://github.com/trussiumhq/trussium/blob/main/docs/TRACING.md)
+for the complete contract.

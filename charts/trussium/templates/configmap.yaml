@@ -12,6 +12,11 @@ data:
   TRUSSIUM_TIMEOUTS__PROVIDER_REQUEST_SECONDS: {{ .Values.timeouts.providerRequestSeconds | quote }}
   TRUSSIUM_TIMEOUTS__STREAM_IDLE_SECONDS: {{ .Values.timeouts.streamIdleSeconds | quote }}
   TRUSSIUM_OBSERVABILITY__METRICS_ENABLED: {{ .Values.observability.metrics.enabled | quote }}
+  TRUSSIUM_OBSERVABILITY__TRACING_ENABLED: {{ .Values.observability.tracing.enabled | quote }}
+  TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME: {{ .Values.observability.tracing.serviceName | quote }}
+  TRUSSIUM_OBSERVABILITY__TRACING_SAMPLE_RATIO: {{ .Values.observability.tracing.sampleRatio | quote }}
+  TRUSSIUM_OBSERVABILITY__OTLP_TRACES_ENDPOINT: {{ .Values.observability.tracing.otlpTracesEndpoint | quote }}
+  TRUSSIUM_OBSERVABILITY__OTLP_EXPORT_TIMEOUT_SECONDS: {{ .Values.observability.tracing.otlpExportTimeoutSeconds | quote }}
   {{- range $key, $value := .Values.extraConfig }}
   {{ $key }}: {{ $value | quote }}
   {{- end }}
