@@ -9,6 +9,8 @@ context="kind-$cluster"
 namespace="trussium-helm-smoke"
 release="trussium"
 image="${TRUSSIUM_HELM_IMAGE:-trussium:helm-smoke}"
+metrics_server_version="v0.8.1"
+metrics_server_manifest="https://github.com/kubernetes-sigs/metrics-server/releases/download/$metrics_server_version/components.yaml"
 values="$(mktemp)"
 headers="$(mktemp)"
 body="$(mktemp)"
@@ -47,6 +49,31 @@ assert_equal() {
     fi
 }
 
+wait_for_autoscaling() {
+    attempt=0
+    while [ "$attempt" -lt 90 ]; do
+        ready_replicas="$(kubectl --context "$context" --namespace "$namespace" \
+            get deployment trussium -o jsonpath='{.status.readyReplicas}')"
+        scaling_active="$(kubectl --context "$context" --namespace "$namespace" \
+            get horizontalpodautoscaler/trussium \
+            -o jsonpath='{.status.conditions[?(@.type=="ScalingActive")].status}')"
+
+        if [ "$ready_replicas" = "2" ] && [ "$scaling_active" = "True" ]; then
+            return
+        fi
+
+        attempt=$((attempt + 1))
+        sleep 2
+    done
+
+    kubectl --context "$context" --namespace "$namespace" \
+        get deployment,pods,horizontalpodautoscaler >&2
+    kubectl --context "$context" --namespace "$namespace" \
+        describe horizontalpodautoscaler trussium >&2
+    echo "Helm-managed horizontal autoscaling did not become active within 180 seconds" >&2
+    exit 1
+}
+
 for command_name in docker kind kubectl helm curl python3; do
     command -v "$command_name" >/dev/null 2>&1 || {
         echo "$command_name is required for the Helm smoke test" >&2
@@ -67,6 +94,13 @@ fi
 docker build --quiet --tag "$image" "$runtime_source"
 kind load docker-image "$image" --name "$cluster"
 
+kubectl --context "$context" apply -f "$metrics_server_manifest"
+kubectl --context "$context" -n kube-system patch deployment metrics-server \
+    --type=json \
+    --patch='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+kubectl --context "$context" -n kube-system rollout status deployment/metrics-server \
+    --timeout=180s
+
 cat >"$values" <<EOF
 image:
   repository: ${image%:*}
@@ -82,9 +116,21 @@ helm --kube-context "$context" install "$release" "$repository_root/charts/truss
     --namespace "$namespace" --create-namespace --values "$values" --wait --timeout 180s
 kubectl --context "$context" --namespace "$namespace" rollout status deployment/trussium \
     --timeout=180s
+wait_for_autoscaling
 
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get deployment trussium \
     -o jsonpath='{.status.readyReplicas}')" "2" "ready replicas after install"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" \
+    get horizontalpodautoscaler trussium -o jsonpath='{.spec.minReplicas}')" \
+    "2" "minimum replicas"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" \
+    get horizontalpodautoscaler trussium -o jsonpath='{.spec.maxReplicas}')" \
+    "10" "maximum replicas"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" \
+    get horizontalpodautoscaler trussium \
+    -o jsonpath='{.spec.metrics[0].containerResource.target.averageUtilization}')" \
+    "70" "target CPU utilization"
+assert_equal "$scaling_active" "True" "active horizontal scaling"
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get deployment trussium \
     -o jsonpath='{.spec.template.spec.securityContext.runAsUser}')" "10001" "runtime UID"
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get deployment trussium \
@@ -122,16 +168,27 @@ assert_equal "$(cat "$body")" '{"status":"ok"}' "readiness response"
 request_id="$(awk 'tolower($1) == "x-request-id:" {gsub("\r", "", $2); print $2}' "$headers")"
 assert_equal "$request_id" "helm-smoke-1" "request correlation header"
 
+curl --fail --silent --show-error "http://127.0.0.1:$port/metrics" --output "$body"
+grep -q '^trussium_http_requests_active 0\.0$' "$body"
+grep -q '^process_start_time_seconds ' "$body"
+
 kill "$port_forward_pid" >/dev/null 2>&1 || true
 wait "$port_forward_pid" >/dev/null 2>&1 || true
 port_forward_pid=""
 
 helm --kube-context "$context" upgrade "$release" "$repository_root/charts/trussium" \
-    --namespace "$namespace" --values "$values" --set replicaCount=3 --wait --timeout 180s
+    --namespace "$namespace" --values "$values" --set autoscaling.enabled=false \
+    --set replicaCount=3 --wait --timeout 180s
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get deployment trussium \
     -o jsonpath='{.status.readyReplicas}')" "3" "ready replicas after upgrade"
+if kubectl --context "$context" --namespace "$namespace" \
+    get horizontalpodautoscaler trussium >/dev/null 2>&1; then
+    echo "HorizontalPodAutoscaler remained after fixed-replica upgrade" >&2
+    exit 1
+fi
 
 helm --kube-context "$context" rollback "$release" 1 --namespace "$namespace" --wait --timeout 180s
+wait_for_autoscaling
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get deployment trussium \
     -o jsonpath='{.status.readyReplicas}')" "2" "ready replicas after rollback"
 

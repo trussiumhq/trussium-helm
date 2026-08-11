@@ -8,7 +8,7 @@ default compatible runtime image.
 
 | Value | Default | Purpose |
 | --- | --- | --- |
-| `replicaCount` | `2` | Desired runtime replicas. |
+| `replicaCount` | `2` | Desired replicas when autoscaling is disabled. |
 | `revisionHistoryLimit` | `3` | Retained Deployment revisions. |
 | `image.repository` | `ghcr.io/trussiumhq/trussium` | Runtime image repository. |
 | `image.tag` | `""` | Image tag; empty uses chart `appVersion`. |
@@ -33,6 +33,12 @@ default compatible runtime image.
 | `runtime.gracefulShutdownSeconds` | `30` | Active-workload drain deadline. |
 | `timeouts.providerRequestSeconds` | `60` | Provider request deadline. |
 | `timeouts.streamIdleSeconds` | `30` | Streaming event idle deadline. |
+| `observability.metrics.enabled` | `true` | Expose runtime metrics at `/metrics`. |
+| `autoscaling.enabled` | `true` | Create the runtime HorizontalPodAutoscaler. |
+| `autoscaling.minReplicas` | `2` | Autoscaling availability floor. |
+| `autoscaling.maxReplicas` | `10` | Autoscaling replica ceiling. |
+| `autoscaling.targetCPUUtilizationPercentage` | `70` | Named-container CPU target. |
+| `autoscaling.behavior` | production defaults | Scale velocity and stabilization rules. |
 | `providerSecret.name` | `trussium-provider` | Existing provider Secret; empty disables it. |
 | `providerSecret.optional` | `true` | Allow startup when that Secret is absent. |
 | `extraConfig` | `{}` | Additional non-secret ConfigMap entries. |
@@ -53,3 +59,24 @@ default compatible runtime image.
 | `priorityClassName` | `""` | Existing PriorityClass name. |
 
 The JSON Schema in the chart is authoritative for value types and constraints.
+
+## Autoscaling and metrics
+
+Default rendering omits Deployment `spec.replicas` so the
+HorizontalPodAutoscaler owns scale. It targets the named `trussium` container,
+can grow by at most 100% or four pods per minute, and uses a five-minute
+scale-down stabilization window with a 25% or one-pod per-minute limit.
+
+The default CPU signal requires Kubernetes Metrics API, commonly supplied by
+Metrics Server. It does not require Prometheus. Disable autoscaling to restore
+fixed `replicaCount` ownership:
+
+```yaml
+autoscaling:
+  enabled: false
+replicaCount: 3
+```
+
+Runtime metrics remain independently configurable through
+`observability.metrics.enabled`. The chart does not install Prometheus,
+Prometheus Adapter, ServiceMonitor, or other monitoring resources.

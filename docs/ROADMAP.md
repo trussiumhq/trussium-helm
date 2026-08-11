@@ -9,10 +9,10 @@ remains a separate project.
 
 ## Current focus
 
-The first production Helm chart now carries the validated Trussium v0.24.0
+The production Helm chart now carries the validated Trussium v0.25.0
 Kubernetes contract into an independently released distribution:
 
-- Hardened replicated runtime pods.
+- Hardened autoscaled runtime pods with a two-replica availability floor.
 - Configurable non-secret runtime settings and existing Secret integration.
 - Private-registry authentication, health probes, resource boundaries,
   topology spreading, zero-unavailable rolling updates, disruption protection,
@@ -21,6 +21,12 @@ Kubernetes contract into an independently released distribution:
 - A real Kind lifecycle test covering install, health, upgrade, rollback, and
   uninstall.
 - Independent Conventional Commit releases with GitHub and OCI artifacts.
+- Prometheus-compatible runtime metrics enabled by default.
+- Configurable `autoscaling/v2` HorizontalPodAutoscaler using the named
+  runtime container's CPU resource metric.
+- Fixed-replica fallback when autoscaling is disabled.
+- Pinned Metrics Server Kind validation covering live HPA activation, upgrade,
+  rollback, and removal.
 
 The immediate focus is runtime compatibility operations: automated runtime
 version proposals, an explicit compatibility matrix, release recovery
@@ -48,9 +54,9 @@ runbooks, and validation across supported Kubernetes minor versions.
 
 ## Milestone 3 — Optional platform integrations
 
-**Status:** Planned
+**Status:** In Progress
 
-- Configurable HorizontalPodAutoscaler support after runtime metrics exist.
+- [x] Configurable HorizontalPodAutoscaler support after runtime metrics exist.
 - Optional NetworkPolicy after supported network contracts are defined.
 - Optional ServiceMonitor after observability endpoints stabilize.
 - Optional Ingress integration without owning certificate issuance.
