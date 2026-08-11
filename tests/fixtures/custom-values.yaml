@@ -1,6 +1,11 @@
 replicaCount: 3
 image:
-  tag: "0.24.0"
+  tag: "0.25.0"
+autoscaling:
+  enabled: false
+observability:
+  metrics:
+    enabled: false
 imagePullSecrets: []
 fullnameOverride: trussium-custom
 serviceAccount:

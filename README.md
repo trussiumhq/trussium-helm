@@ -12,20 +12,25 @@ future `trussium-operator`.
 
 ## What the chart installs
 
-- A hardened, replicated Trussium Deployment.
+- A hardened, autoscaled Trussium Deployment.
 - A ClusterIP Service on port 9000 by default.
 - A ServiceAccount without API-token automounting.
 - A ConfigMap containing non-secret runtime settings.
 - An optional reference to an existing provider Secret.
 - A PodDisruptionBudget and topology-spread constraints.
+- An `autoscaling/v2` HorizontalPodAutoscaler with conservative production
+  behavior.
 
 No Namespace, provider credentials, registry credentials, Ingress,
-HorizontalPodAutoscaler, or monitoring custom resources are created.
+Prometheus, Prometheus Adapter, monitoring custom resources, or operator
+resources are created.
 
 ## Prerequisites
 
 - Kubernetes 1.25 or newer.
 - Helm 3.12 or newer.
+- A working Kubernetes Metrics API when default autoscaling is enabled,
+  commonly provided by Metrics Server.
 - Access to `ghcr.io/trussiumhq/trussium`.
 
 The Trussium runtime package currently requires authenticated GHCR access.
@@ -58,6 +63,17 @@ helm install trussium \
 
 The chart defaults to the compatible runtime release in `Chart.yaml`'s
 `appVersion`. Chart and runtime versions are intentionally independent.
+
+## Compatibility
+
+| Chart release | Default runtime | Kubernetes |
+| --- | --- | --- |
+| `0.2.x` | `0.25.x` | `>=1.25` |
+| `0.1.x` | `0.24.x` | `>=1.25` |
+
+Compatibility means the default runtime image and the chart deployment
+contract are validated together. Overriding `image.tag` is supported, but the
+operator owns compatibility validation for that combination.
 
 For a local checkout:
 
@@ -111,7 +127,10 @@ helm show values oci://ghcr.io/trussiumhq/charts/trussium \
 Common production overrides:
 
 ```yaml
-replicaCount: 3
+autoscaling:
+  minReplicas: 3
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 65
 
 imagePullSecrets:
   - name: organization-ghcr-credentials
@@ -128,6 +147,22 @@ timeouts:
   providerRequestSeconds: 90
   streamIdleSeconds: 45
 ```
+
+The chart enables runtime metrics at `/metrics` and CPU-based horizontal
+autoscaling by default. The HPA uses Kubernetes resource metrics; it does not
+require Prometheus. To use a fixed replica count instead:
+
+```yaml
+autoscaling:
+  enabled: false
+replicaCount: 3
+```
+
+Do not manually scale the Deployment while the HPA is enabled. Tune the HPA
+bounds and target instead. See the
+[runtime metrics guide](https://github.com/trussiumhq/trussium/blob/main/docs/METRICS.md)
+for the bounded Prometheus-compatible metric contract and optional custom
+metrics extension point.
 
 The complete value reference is in the
 [chart README](charts/trussium/README.md). `values.schema.json` rejects unknown
@@ -185,9 +220,10 @@ scripts/helm-validate.sh
 scripts/chart-package.sh
 ```
 
-The complete Kind lifecycle test builds runtime `v0.24.0` from a neighboring
-checkout and validates install, readiness, HTTP request correlation, upgrade,
-rollback, and uninstall:
+The complete Kind lifecycle test builds runtime `v0.25.0` from a neighboring
+checkout, installs pinned Metrics Server v0.8.1, and validates install, live
+autoscaling, runtime metrics, readiness, HTTP request correlation, fixed-scale
+upgrade, autoscaling rollback, and uninstall:
 
 ```bash
 TRUSSIUM_RUNTIME_SOURCE=../trussium scripts/chart-smoke-test.sh

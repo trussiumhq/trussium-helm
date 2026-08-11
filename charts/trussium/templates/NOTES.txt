@@ -2,9 +2,17 @@ Trussium runtime {{ .Chart.AppVersion }} has been installed as release {{ .Relea
 
 Check the rollout:
   kubectl rollout status --namespace {{ .Release.Namespace }} deployment/{{ include "trussium.fullname" . }}
+{{- if .Values.autoscaling.enabled }}
+
+Check horizontal autoscaling:
+  kubectl get --namespace {{ .Release.Namespace }} horizontalpodautoscaler/{{ include "trussium.fullname" . }}
+{{- end }}
 
 Reach the runtime locally:
   kubectl port-forward --namespace {{ .Release.Namespace }} service/{{ include "trussium.fullname" . }} 9000:{{ .Values.service.port }}
   curl http://127.0.0.1:9000/health/ready
+{{- if .Values.observability.metrics.enabled }}
+  curl http://127.0.0.1:9000/metrics
+{{- end }}
 
 This chart installs the Trussium runtime only. It does not install trussium-operator.
