@@ -1,8 +1,13 @@
 replicaCount: 3
 image:
-  tag: "0.30.0"
+  tag: "0.31.0"
 autoscaling:
   enabled: false
+readiness:
+  dependencyChecksEnabled: true
+  dependencyTimeoutSeconds: 0.75
+  dependencyCacheSeconds: 3.5
+  requiredModel: required-model
 observability:
   metrics:
     enabled: false

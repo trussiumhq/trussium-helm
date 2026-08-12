@@ -20,5 +20,16 @@ OpenTelemetry trace export is enabled for service {{ .Values.observability.traci
 Confirm that the runtime network can reach {{ .Values.observability.tracing.otlpTracesEndpoint }}.
 This chart does not install an OpenTelemetry Collector or tracing backend.
 {{- end }}
+{{- if .Values.readiness.dependencyChecksEnabled }}
+
+Provider dependency readiness checks are enabled.
+Confirm that the existing provider Secret and provider endpoint are available before rollout.
+{{- if .Values.readiness.requiredModel }}
+An exact required-model metadata check is configured; the model identifier is not printed here.
+{{- else }}
+Readiness will use the provider model-list metadata endpoint.
+{{- end }}
+This chart does not create provider credentials, providers, model servers, or model artifacts.
+{{- end }}
 
 This chart installs the Trussium runtime only. It does not install trussium-operator.

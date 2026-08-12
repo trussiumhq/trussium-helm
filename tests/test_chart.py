@@ -47,29 +47,35 @@ def test_chart_metadata_tracks_runtime_independently() -> None:
     assert metadata["type"] == "application"
     assert re.fullmatch(r"\d+\.\d+\.\d+", metadata["version"])
     assert metadata["version"] == project["project"]["version"]
-    assert metadata["appVersion"] == "0.30.0"
+    assert metadata["appVersion"] == "0.31.0"
     assert metadata["annotations"]["artifacthub.io/operator"] == "false"
 
 
-def test_kind_validates_runtime_v030_observability_contract() -> None:
+def test_kind_validates_runtime_v031_readiness_contract() -> None:
     """Compatibility CI should bind the release and existing live assertions."""
     workflow = (REPOSITORY_ROOT / ".github" / "workflows" / "ci.yml").read_text()
     smoke_script = (REPOSITORY_ROOT / "scripts" / "chart-smoke-test.sh").read_text()
     root_readme = (REPOSITORY_ROOT / "README.md").read_text()
     chart_readme = (CHART / "README.md").read_text()
 
-    assert "ref: v0.30.0" in workflow
+    assert "ref: v0.31.0" in workflow
     assert '"event":"runtime.configuration.loaded"' in smoke_script
     assert '"event":"provider.configuration.unavailable"' in smoke_script
     assert '"event":"observability.configuration.loaded"' in smoke_script
     assert '"event":"runtime.started"' in smoke_script
-    assert "blob/v0.30.0/docs/DASHBOARDS.md" in root_readme
-    assert "blob/v0.30.0/docs/DASHBOARDS.md" in chart_readme
-    assert "blob/v0.30.0/docs/ALERTING.md" in root_readme
-    assert "blob/v0.30.0/docs/ALERTING.md" in chart_readme
-    assert "blob/v0.30.0/deploy/observability/prometheus/rules/" in root_readme
-    assert "blob/v0.30.0/deploy/observability/prometheus/rules/" in chart_readme
+    assert '"event":"readiness.configuration.loaded"' in smoke_script
+    assert "blob/v0.31.0/docs/HEALTH.md" in root_readme
+    assert "blob/v0.31.0/docs/HEALTH.md" in chart_readme
+    assert "blob/v0.31.0/docs/DASHBOARDS.md" in root_readme
+    assert "blob/v0.31.0/docs/DASHBOARDS.md" in chart_readme
+    assert "blob/v0.31.0/docs/ALERTING.md" in root_readme
+    assert "blob/v0.31.0/docs/ALERTING.md" in chart_readme
+    assert "blob/v0.31.0/deploy/observability/prometheus/rules/" in root_readme
+    assert "blob/v0.31.0/deploy/observability/prometheus/rules/" in chart_readme
     assert 'helm --kube-context "$context" get manifest' in smoke_script
+    notes = (CHART / "templates" / "NOTES.txt").read_text()
+    assert "Provider dependency readiness checks are enabled" in notes
+    assert "model identifier is not printed here" in notes
 
 
 def test_default_render_preserves_production_runtime_contract() -> None:
@@ -98,7 +104,7 @@ def test_default_render_preserves_production_runtime_contract() -> None:
     assert pod_spec["securityContext"]["runAsGroup"] == 10001
     assert pod_spec["securityContext"]["seccompProfile"]["type"] == "RuntimeDefault"
     assert pod_spec["imagePullSecrets"] == [{"name": "ghcr-credentials"}]
-    assert container["image"] == "ghcr.io/trussiumhq/trussium:0.30.0"
+    assert container["image"] == "ghcr.io/trussiumhq/trussium:0.31.0"
     assert container["ports"][0]["containerPort"] == 9000
     assert container["securityContext"]["readOnlyRootFilesystem"] is True
     assert container["securityContext"]["capabilities"]["drop"] == ["ALL"]
@@ -127,6 +133,10 @@ def test_default_render_preserves_production_runtime_contract() -> None:
     assert budget["spec"]["maxUnavailable"] == 1
 
     config_map = resource(documents, "ConfigMap")
+    assert config_map["data"]["TRUSSIUM_READINESS__DEPENDENCY_CHECKS_ENABLED"] == "false"
+    assert config_map["data"]["TRUSSIUM_READINESS__DEPENDENCY_TIMEOUT_SECONDS"] == "1"
+    assert config_map["data"]["TRUSSIUM_READINESS__DEPENDENCY_CACHE_SECONDS"] == "10"
+    assert "TRUSSIUM_READINESS__REQUIRED_MODEL" not in config_map["data"]
     assert config_map["data"]["TRUSSIUM_OBSERVABILITY__METRICS_ENABLED"] == "true"
     assert config_map["data"]["TRUSSIUM_OBSERVABILITY__TRACING_ENABLED"] == "false"
     assert config_map["data"]["TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME"] == "trussium"
@@ -206,6 +216,10 @@ def test_custom_values_render_supported_integrations() -> None:
     assert service["metadata"]["annotations"]["example.com/service"] == "custom"
 
     config_map = resource(documents, "ConfigMap")
+    assert config_map["data"]["TRUSSIUM_READINESS__DEPENDENCY_CHECKS_ENABLED"] == "true"
+    assert config_map["data"]["TRUSSIUM_READINESS__DEPENDENCY_TIMEOUT_SECONDS"] == "0.75"
+    assert config_map["data"]["TRUSSIUM_READINESS__DEPENDENCY_CACHE_SECONDS"] == "3.5"
+    assert config_map["data"]["TRUSSIUM_READINESS__REQUIRED_MODEL"] == "required-model"
     assert config_map["data"]["TRUSSIUM_OBSERVABILITY__METRICS_ENABLED"] == "false"
     assert config_map["data"]["TRUSSIUM_OBSERVABILITY__TRACING_ENABLED"] == "true"
     assert config_map["data"]["TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME"] == "trussium-custom"
@@ -299,6 +313,47 @@ def test_schema_rejects_unknown_observability_values() -> None:
     assert result.returncode != 0
     assert "unexpected" in result.stderr
     assert "Additional property" in result.stderr
+
+
+def test_schema_rejects_unknown_readiness_values() -> None:
+    result = run_helm(
+        "template",
+        "trussium",
+        str(CHART),
+        "--set",
+        "readiness.unexpected=true",
+        check=False,
+    )
+
+    assert result.returncode != 0
+    assert "unexpected" in result.stderr
+    assert "Additional property" in result.stderr
+
+
+@pytest.mark.parametrize(
+    ("flag", "setting", "value"),
+    [
+        ("--set", "dependencyTimeoutSeconds", "0"),
+        ("--set", "dependencyCacheSeconds", "0"),
+        ("--set-string", "requiredModel", "   "),
+    ],
+)
+def test_schema_rejects_invalid_readiness_values(
+    flag: str,
+    setting: str,
+    value: str,
+) -> None:
+    result = run_helm(
+        "template",
+        "trussium",
+        str(CHART),
+        flag,
+        f"readiness.{setting}={value}",
+        check=False,
+    )
+
+    assert result.returncode != 0
+    assert setting in result.stderr
 
 
 @pytest.mark.parametrize(

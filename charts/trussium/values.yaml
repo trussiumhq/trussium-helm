@@ -49,6 +49,12 @@ timeouts:
   providerRequestSeconds: 60
   streamIdleSeconds: 30
 
+readiness:
+  dependencyChecksEnabled: false
+  dependencyTimeoutSeconds: 1
+  dependencyCacheSeconds: 10
+  requiredModel: ""
+
 observability:
   metrics:
     enabled: true
