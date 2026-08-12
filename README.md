@@ -21,9 +21,9 @@ future `trussium-operator`.
 - An `autoscaling/v2` HorizontalPodAutoscaler with conservative production
   behavior.
 
-No Namespace, provider credentials, registry credentials, Ingress,
-Prometheus, Prometheus Adapter, monitoring custom resources, or operator
-resources are created.
+No Namespace, provider credentials, registry credentials, Ingress, Grafana,
+Prometheus, Loki, Tempo, collector, log agent, dashboard, alert, monitoring
+custom resource, or operator resource is created.
 
 ## Prerequisites
 
@@ -68,6 +68,7 @@ The chart defaults to the compatible runtime release in `Chart.yaml`'s
 
 | Chart release | Default runtime | Kubernetes |
 | --- | --- | --- |
+| `0.3.3` | `0.29.x` | `>=1.25` |
 | `0.3.2` | `0.28.x` | `>=1.25` |
 | `0.3.1` | `0.27.x` | `>=1.25` |
 | `0.3.0` | `0.26.x` | `>=1.25` |
@@ -183,7 +184,7 @@ choose sampling and retention policies appropriate to the cluster. Do not put
 collector credentials in `extraConfig`; use an organization-managed network
 or secret-based integration outside the chart.
 
-Runtime v0.28.0 propagates W3C `traceparent` and optional `tracestate` from the
+Runtime v0.29.0 propagates W3C `traceparent` and optional `tracestate` from the
 active provider span to supported OpenAI and Ollama-compatible JSON and SSE
 requests. It does not propagate baggage, request IDs, arbitrary inbound
 headers, prompts, completions, bodies, or credentials as tracing metadata. A
@@ -192,7 +193,7 @@ own span; the chart does not install or instrument that receiver. See the
 [runtime tracing guide](https://github.com/trussiumhq/trussium/blob/main/docs/TRACING.md)
 for the complete span, privacy, lifecycle, sampling, and propagation contract.
 
-Runtime v0.28.0 also emits newline-delimited structured operational JSON for
+Runtime v0.29.0 also emits newline-delimited structured operational JSON for
 safe configuration summaries, provider configuration readiness, application
 and server lifecycle, graceful-drain outcomes, invalid configuration, and
 trace-export failures. Provider readiness events describe local configuration;
@@ -203,6 +204,16 @@ on the Kubernetes container log stream and does not install a collector,
 shipper, storage backend, dashboard, or alert. See the
 [runtime operational logging guide](https://github.com/trussiumhq/trussium/blob/main/docs/OPERATIONAL_LOGGING.md)
 for the stable event and privacy contract.
+
+Runtime v0.29.0 provides three portable Grafana dashboard JSON models in the
+runtime repository: a Prometheus overview, a Loki structured-log view, and a
+Tempo trace investigation view. Prometheus is required only for the overview;
+Loki and Tempo remain optional. The chart does not bundle, mount, import, or
+provision those files and does not install Grafana, observability backends,
+collectors, log agents, dashboard custom resources, or alerts. Operators own
+data collection, dashboard import, backend access control, and retention. See
+the [runtime dashboard guide](https://github.com/trussiumhq/trussium/blob/v0.29.0/docs/DASHBOARDS.md)
+for artifacts, import methods, variables, privacy, and troubleshooting.
 
 The complete value reference is in the
 [chart README](charts/trussium/README.md). `values.schema.json` rejects unknown
@@ -260,7 +271,7 @@ scripts/helm-validate.sh
 scripts/chart-package.sh
 ```
 
-The complete Kind lifecycle test builds runtime `v0.28.0` from a neighboring
+The complete Kind lifecycle test builds runtime `v0.29.0` from a neighboring
 checkout, installs pinned Metrics Server v0.8.1, and validates install, live
 autoscaling, runtime metrics, tracing configuration, operational startup logs,
 readiness, HTTP request correlation, fixed-scale upgrade, autoscaling rollback,

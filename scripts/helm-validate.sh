@@ -35,4 +35,11 @@ if grep -Eq '^kind: Secret$' "$default_render" "$custom_render"; then
     exit 1
 fi
 
+if grep -Eiq \
+    'grafana|loki|tempo|dashboard|^kind: (ServiceMonitor|PodMonitor|PrometheusRule)$' \
+    "$default_render" "$custom_render"; then
+    echo "observability backends and dashboards must remain operator-owned" >&2
+    exit 1
+fi
+
 echo "Helm chart linting and rendering validation passed"
