@@ -15,6 +15,7 @@ values="$(mktemp)"
 headers="$(mktemp)"
 body="$(mktemp)"
 port_forward_log="$(mktemp)"
+runtime_log="$(mktemp)"
 created_cluster=false
 port_forward_pid=""
 
@@ -33,7 +34,7 @@ cleanup() {
         kind delete cluster --name "$cluster" >/dev/null 2>&1 || true
     fi
 
-    rm -f "$values" "$headers" "$body" "$port_forward_log"
+    rm -f "$values" "$headers" "$body" "$port_forward_log" "$runtime_log"
 }
 
 trap cleanup EXIT INT TERM
@@ -177,6 +178,13 @@ assert_equal "$request_id" "helm-smoke-1" "request correlation header"
 curl --fail --silent --show-error "http://127.0.0.1:$port/metrics" --output "$body"
 grep -q '^trussium_http_requests_active 0\.0$' "$body"
 grep -q '^process_start_time_seconds ' "$body"
+
+kubectl --context "$context" --namespace "$namespace" logs \
+    -l app.kubernetes.io/name=trussium --tail=100 >"$runtime_log"
+grep -q '"event":"runtime.configuration.loaded"' "$runtime_log"
+grep -q '"event":"provider.configuration.unavailable"' "$runtime_log"
+grep -q '"event":"observability.configuration.loaded"' "$runtime_log"
+grep -q '"event":"runtime.started"' "$runtime_log"
 
 kill "$port_forward_pid" >/dev/null 2>&1 || true
 wait "$port_forward_pid" >/dev/null 2>&1 || true

@@ -47,8 +47,20 @@ def test_chart_metadata_tracks_runtime_independently() -> None:
     assert metadata["type"] == "application"
     assert re.fullmatch(r"\d+\.\d+\.\d+", metadata["version"])
     assert metadata["version"] == project["project"]["version"]
-    assert metadata["appVersion"] == "0.27.0"
+    assert metadata["appVersion"] == "0.28.0"
     assert metadata["annotations"]["artifacthub.io/operator"] == "false"
+
+
+def test_kind_validates_runtime_v028_operational_log_contract() -> None:
+    """Compatibility CI should bind the release and live pod-log assertions."""
+    workflow = (REPOSITORY_ROOT / ".github" / "workflows" / "ci.yml").read_text()
+    smoke_script = (REPOSITORY_ROOT / "scripts" / "chart-smoke-test.sh").read_text()
+
+    assert "ref: v0.28.0" in workflow
+    assert '"event":"runtime.configuration.loaded"' in smoke_script
+    assert '"event":"provider.configuration.unavailable"' in smoke_script
+    assert '"event":"observability.configuration.loaded"' in smoke_script
+    assert '"event":"runtime.started"' in smoke_script
 
 
 def test_default_render_preserves_production_runtime_contract() -> None:
@@ -77,7 +89,7 @@ def test_default_render_preserves_production_runtime_contract() -> None:
     assert pod_spec["securityContext"]["runAsGroup"] == 10001
     assert pod_spec["securityContext"]["seccompProfile"]["type"] == "RuntimeDefault"
     assert pod_spec["imagePullSecrets"] == [{"name": "ghcr-credentials"}]
-    assert container["image"] == "ghcr.io/trussiumhq/trussium:0.27.0"
+    assert container["image"] == "ghcr.io/trussiumhq/trussium:0.28.0"
     assert container["ports"][0]["containerPort"] == 9000
     assert container["securityContext"]["readOnlyRootFilesystem"] is True
     assert container["securityContext"]["capabilities"]["drop"] == ["ALL"]
