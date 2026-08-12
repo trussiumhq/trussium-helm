@@ -119,6 +119,14 @@ kubectl --context "$context" --namespace "$namespace" rollout status deployment/
     --timeout=180s
 wait_for_autoscaling
 
+helm --kube-context "$context" get manifest "$release" --namespace "$namespace" >"$body"
+if grep -Eiq \
+    'grafana|loki|tempo|dashboard|^kind: (ServiceMonitor|PodMonitor|PrometheusRule)$' \
+    "$body"; then
+    echo "Helm release rendered an operator-owned observability resource" >&2
+    exit 1
+fi
+
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get deployment trussium \
     -o jsonpath='{.status.readyReplicas}')" "2" "ready replicas after install"
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" \

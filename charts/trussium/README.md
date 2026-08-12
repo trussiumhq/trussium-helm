@@ -114,7 +114,7 @@ network and secret controls. The runtime excludes health and metrics traffic
 and does not attach prompts, bodies, credentials, query strings, raw URLs, or
 exception messages to spans.
 
-With runtime v0.28.0, the active provider span is propagated to supported
+With runtime v0.29.0, the active provider span is propagated to supported
 OpenAI and Ollama-compatible JSON and SSE requests as W3C `traceparent` and
 optional `tracestate`. Baggage, request IDs, arbitrary inbound headers,
 payloads, and credentials remain behind the runtime privacy boundary. The
@@ -125,7 +125,7 @@ for the complete contract.
 
 ## Structured operational logs
 
-Runtime v0.28.0 writes bounded newline-delimited JSON events to standard
+Runtime v0.29.0 writes bounded newline-delimited JSON events to standard
 output for startup configuration, provider configuration readiness,
 observability enablement, application and server shutdown, graceful-drain
 timeouts, invalid settings, and trace-export failures.
@@ -142,3 +142,23 @@ rule, volume, sidecar, or new value for this contract. Kubernetes platform log
 collection remains operator-owned. See the
 [runtime operational logging guide](https://github.com/trussiumhq/trussium/blob/main/docs/OPERATIONAL_LOGGING.md)
 for the stable event table and privacy boundary.
+
+## Portable runtime dashboards
+
+Runtime v0.29.0 provides three independently importable Grafana dashboard JSON
+models in the runtime repository:
+
+- `Trussium Runtime Overview` uses Prometheus for demand, active work,
+  outcomes, latency, process health, and uptime.
+- `Trussium Runtime Logs` uses Loki for configuration, lifecycle, execution,
+  shutdown, and export events.
+- `Trussium Runtime Traces` uses Tempo for recent, failed, slow, HTTP,
+  capability, and provider trace searches.
+
+Prometheus is required only for the overview. Loki and Tempo are optional. This
+chart does not bundle, mount, import, or provision dashboard JSON and does not
+install Grafana, any observability backend, a collector, log agent, dashboard
+sidecar, custom resource, or alert. Collection, access control, retention, and
+dashboard lifecycle remain operator-owned. See the
+[runtime dashboard guide](https://github.com/trussiumhq/trussium/blob/v0.29.0/docs/DASHBOARDS.md)
+for import, provisioning, variables, privacy, and troubleshooting.

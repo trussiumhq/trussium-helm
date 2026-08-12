@@ -47,20 +47,25 @@ def test_chart_metadata_tracks_runtime_independently() -> None:
     assert metadata["type"] == "application"
     assert re.fullmatch(r"\d+\.\d+\.\d+", metadata["version"])
     assert metadata["version"] == project["project"]["version"]
-    assert metadata["appVersion"] == "0.28.0"
+    assert metadata["appVersion"] == "0.29.0"
     assert metadata["annotations"]["artifacthub.io/operator"] == "false"
 
 
-def test_kind_validates_runtime_v028_operational_log_contract() -> None:
-    """Compatibility CI should bind the release and live pod-log assertions."""
+def test_kind_validates_runtime_v029_observability_contract() -> None:
+    """Compatibility CI should bind the release and existing live assertions."""
     workflow = (REPOSITORY_ROOT / ".github" / "workflows" / "ci.yml").read_text()
     smoke_script = (REPOSITORY_ROOT / "scripts" / "chart-smoke-test.sh").read_text()
+    root_readme = (REPOSITORY_ROOT / "README.md").read_text()
+    chart_readme = (CHART / "README.md").read_text()
 
-    assert "ref: v0.28.0" in workflow
+    assert "ref: v0.29.0" in workflow
     assert '"event":"runtime.configuration.loaded"' in smoke_script
     assert '"event":"provider.configuration.unavailable"' in smoke_script
     assert '"event":"observability.configuration.loaded"' in smoke_script
     assert '"event":"runtime.started"' in smoke_script
+    assert "blob/v0.29.0/docs/DASHBOARDS.md" in root_readme
+    assert "blob/v0.29.0/docs/DASHBOARDS.md" in chart_readme
+    assert 'helm --kube-context "$context" get manifest' in smoke_script
 
 
 def test_default_render_preserves_production_runtime_contract() -> None:
@@ -89,7 +94,7 @@ def test_default_render_preserves_production_runtime_contract() -> None:
     assert pod_spec["securityContext"]["runAsGroup"] == 10001
     assert pod_spec["securityContext"]["seccompProfile"]["type"] == "RuntimeDefault"
     assert pod_spec["imagePullSecrets"] == [{"name": "ghcr-credentials"}]
-    assert container["image"] == "ghcr.io/trussiumhq/trussium:0.28.0"
+    assert container["image"] == "ghcr.io/trussiumhq/trussium:0.29.0"
     assert container["ports"][0]["containerPort"] == 9000
     assert container["securityContext"]["readOnlyRootFilesystem"] is True
     assert container["securityContext"]["capabilities"]["drop"] == ["ALL"]
@@ -214,6 +219,24 @@ def test_chart_does_not_render_credentials() -> None:
     assert "kind: Secret" not in result.stdout
     assert "API_KEY" not in result.stdout
     assert "YOUR_GITHUB_TOKEN" not in result.stdout
+
+
+def test_chart_does_not_render_observability_backends_or_dashboards() -> None:
+    """Portable dashboard import and backend lifecycle should stay operator-owned."""
+    rendered = run_helm("template", "trussium", str(CHART)).stdout.lower()
+
+    assert "grafana" not in rendered
+    assert "loki" not in rendered
+    assert "tempo" not in rendered
+    assert "servicemonitor" not in rendered
+    assert "podmonitor" not in rendered
+    assert "prometheusrule" not in rendered
+    assert "dashboard" not in rendered
+
+    validate_script = (REPOSITORY_ROOT / "scripts" / "helm-validate.sh").read_text()
+    package_script = (REPOSITORY_ROOT / "scripts" / "package-smoke-test.sh").read_text()
+    assert "observability backends and dashboards must remain operator-owned" in validate_script
+    assert "packaged chart must not bundle observability backends or dashboards" in package_script
 
 
 def test_schema_rejects_invalid_values() -> None:
