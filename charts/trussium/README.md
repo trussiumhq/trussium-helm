@@ -114,7 +114,7 @@ network and secret controls. The runtime excludes health and metrics traffic
 and does not attach prompts, bodies, credentials, query strings, raw URLs, or
 exception messages to spans.
 
-With runtime v0.27.0, the active provider span is propagated to supported
+With runtime v0.28.0, the active provider span is propagated to supported
 OpenAI and Ollama-compatible JSON and SSE requests as W3C `traceparent` and
 optional `tracestate`. Baggage, request IDs, arbitrary inbound headers,
 payloads, and credentials remain behind the runtime privacy boundary. The
@@ -122,3 +122,23 @@ downstream provider or gateway owns W3C extraction and its receiver span; this
 chart does not add downstream instrumentation or resources. See the
 [runtime tracing guide](https://github.com/trussiumhq/trussium/blob/main/docs/TRACING.md)
 for the complete contract.
+
+## Structured operational logs
+
+Runtime v0.28.0 writes bounded newline-delimited JSON events to standard
+output for startup configuration, provider configuration readiness,
+observability enablement, application and server shutdown, graceful-drain
+timeouts, invalid settings, and trace-export failures.
+
+`provider.configuration.ready` and `provider.configuration.unavailable`
+describe whether the runtime constructed a provider capability from local
+configuration. They do not probe network reachability, authenticate a
+credential, inspect a model, or alter the readiness endpoint.
+
+Operational events exclude credentials, provider and collector endpoints,
+payloads, raw settings, rejected values, exception messages, and span data.
+The chart does not add a collector, log shipper, backend, dashboard, alerting
+rule, volume, sidecar, or new value for this contract. Kubernetes platform log
+collection remains operator-owned. See the
+[runtime operational logging guide](https://github.com/trussiumhq/trussium/blob/main/docs/OPERATIONAL_LOGGING.md)
+for the stable event table and privacy boundary.
