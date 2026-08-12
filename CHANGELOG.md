@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.4.0 (2026-08-12)
+
+### Features
+
+- Add dependency readiness configuration
+  ([`bf25906`](https://github.com/trussiumhq/trussium-helm/commit/bf25906cd1210665effb3f10a396d1f8028f75c8))
+
+
 ## v0.3.4 (2026-08-12)
 
 ### Bug Fixes
