@@ -36,9 +36,9 @@ if grep -Eq '^kind: Secret$' "$default_render" "$custom_render"; then
 fi
 
 if grep -Eiq \
-    'grafana|loki|tempo|dashboard|^kind: (ServiceMonitor|PodMonitor|PrometheusRule)$' \
+    'grafana|loki|tempo|dashboard|alertmanager|alerting|trussium-runtime-alerts|^kind: (ServiceMonitor|PodMonitor|PrometheusRule|AlertmanagerConfig)$' \
     "$default_render" "$custom_render"; then
-    echo "observability backends and dashboards must remain operator-owned" >&2
+    echo "observability backends, dashboards, and alerts must remain operator-owned" >&2
     exit 1
 fi
 
