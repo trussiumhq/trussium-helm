@@ -47,7 +47,7 @@ def test_chart_metadata_tracks_runtime_independently() -> None:
     assert metadata["type"] == "application"
     assert re.fullmatch(r"\d+\.\d+\.\d+", metadata["version"])
     assert metadata["version"] == project["project"]["version"]
-    assert metadata["appVersion"] == "0.26.0"
+    assert metadata["appVersion"] == "0.27.0"
     assert metadata["annotations"]["artifacthub.io/operator"] == "false"
 
 
@@ -77,7 +77,7 @@ def test_default_render_preserves_production_runtime_contract() -> None:
     assert pod_spec["securityContext"]["runAsGroup"] == 10001
     assert pod_spec["securityContext"]["seccompProfile"]["type"] == "RuntimeDefault"
     assert pod_spec["imagePullSecrets"] == [{"name": "ghcr-credentials"}]
-    assert container["image"] == "ghcr.io/trussiumhq/trussium:0.26.0"
+    assert container["image"] == "ghcr.io/trussiumhq/trussium:0.27.0"
     assert container["ports"][0]["containerPort"] == 9000
     assert container["securityContext"]["readOnlyRootFilesystem"] is True
     assert container["securityContext"]["capabilities"]["drop"] == ["ALL"]

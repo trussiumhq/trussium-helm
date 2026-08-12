@@ -68,7 +68,8 @@ The chart defaults to the compatible runtime release in `Chart.yaml`'s
 
 | Chart release | Default runtime | Kubernetes |
 | --- | --- | --- |
-| `0.3.x` | `0.26.x` | `>=1.25` |
+| `0.3.1` | `0.27.x` | `>=1.25` |
+| `0.3.0` | `0.26.x` | `>=1.25` |
 | `0.2.x` | `0.25.x` | `>=1.25` |
 | `0.1.x` | `0.24.x` | `>=1.25` |
 
@@ -179,9 +180,16 @@ traces endpoint, and export timeout, but it does not install a collector or
 tracing backend. Supply a collector endpoint reachable from runtime pods and
 choose sampling and retention policies appropriate to the cluster. Do not put
 collector credentials in `extraConfig`; use an organization-managed network
-or secret-based integration outside the chart. See the
+or secret-based integration outside the chart.
+
+Runtime v0.27.0 propagates W3C `traceparent` and optional `tracestate` from the
+active provider span to supported OpenAI and Ollama-compatible JSON and SSE
+requests. It does not propagate baggage, request IDs, arbitrary inbound
+headers, prompts, completions, bodies, or credentials as tracing metadata. A
+downstream provider or gateway must extract W3C Trace Context and create its
+own span; the chart does not install or instrument that receiver. See the
 [runtime tracing guide](https://github.com/trussiumhq/trussium/blob/main/docs/TRACING.md)
-for span, privacy, lifecycle, and current propagation contracts.
+for the complete span, privacy, lifecycle, sampling, and propagation contract.
 
 The complete value reference is in the
 [chart README](charts/trussium/README.md). `values.schema.json` rejects unknown
@@ -239,7 +247,7 @@ scripts/helm-validate.sh
 scripts/chart-package.sh
 ```
 
-The complete Kind lifecycle test builds runtime `v0.26.0` from a neighboring
+The complete Kind lifecycle test builds runtime `v0.27.0` from a neighboring
 checkout, installs pinned Metrics Server v0.8.1, and validates install, live
 autoscaling, runtime metrics, tracing configuration, readiness, HTTP request
 correlation, fixed-scale upgrade, autoscaling rollback, and uninstall:
