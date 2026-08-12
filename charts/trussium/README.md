@@ -33,6 +33,10 @@ default compatible runtime image.
 | `runtime.gracefulShutdownSeconds` | `30` | Active-workload drain deadline. |
 | `timeouts.providerRequestSeconds` | `60` | Provider request deadline. |
 | `timeouts.streamIdleSeconds` | `30` | Streaming event idle deadline. |
+| `readiness.dependencyChecksEnabled` | `false` | Include provider metadata access in runtime readiness. |
+| `readiness.dependencyTimeoutSeconds` | `1` | Positive deadline for one dependency check. |
+| `readiness.dependencyCacheSeconds` | `10` | Positive success and failure cache window. |
+| `readiness.requiredModel` | `""` | Exact model to require; empty lists provider models. |
 | `observability.metrics.enabled` | `true` | Expose runtime metrics at `/metrics`. |
 | `observability.tracing.enabled` | `false` | Enable runtime OpenTelemetry tracing and OTLP export. |
 | `observability.tracing.serviceName` | `trussium` | OpenTelemetry `service.name`. |
@@ -86,6 +90,41 @@ Runtime metrics remain independently configurable through
 `observability.metrics.enabled`. The chart does not install Prometheus,
 Prometheus Adapter, ServiceMonitor, or other monitoring resources.
 
+## Dependency-aware readiness
+
+Runtime v0.31.0 can include provider metadata access in `/health/ready`. The
+chart preserves backward-compatible behavior by disabling dependency checks by
+default:
+
+```yaml
+readiness:
+  dependencyChecksEnabled: true
+  dependencyTimeoutSeconds: 1
+  dependencyCacheSeconds: 10
+  requiredModel: gpt-4.1-mini
+```
+
+When `requiredModel` is empty, the runtime lists provider models as a metadata
+check. When it is non-empty, the runtime retrieves that exact model. Neither
+path performs inference. The timeout bounds each check; successful and failed
+results use the same cache window, and concurrent probes share one check.
+
+The `readiness` group configures runtime dependency policy. `readinessProbe`
+independently configures Kubernetes probe timing and failure thresholds. The
+three base settings are always rendered in the non-secret ConfigMap;
+`TRUSSIUM_READINESS__REQUIRED_MODEL` is omitted when no model is configured.
+
+Before enabling checks, supply a valid existing provider Secret, verify network
+access from runtime pods, and stage the rollout. The chart does not create
+credentials, install providers or model servers, download models, or own
+provider availability. The required-model identifier is non-secret ConfigMap
+data visible to anyone who can read that resource; do not place credentials,
+provider endpoints, or other secrets in readiness values. See the
+version-pinned
+[runtime health guide](https://github.com/trussiumhq/trussium/blob/v0.31.0/docs/HEALTH.md)
+for response reasons, rollout guidance, privacy boundaries, and
+troubleshooting.
+
 ## OpenTelemetry tracing
 
 Tracing remains disabled by default because the chart does not install an
@@ -114,7 +153,7 @@ network and secret controls. The runtime excludes health and metrics traffic
 and does not attach prompts, bodies, credentials, query strings, raw URLs, or
 exception messages to spans.
 
-With runtime v0.30.0, the active provider span is propagated to supported
+With runtime v0.31.0, the active provider span is propagated to supported
 OpenAI and Ollama-compatible JSON and SSE requests as W3C `traceparent` and
 optional `tracestate`. Baggage, request IDs, arbitrary inbound headers,
 payloads, and credentials remain behind the runtime privacy boundary. The
@@ -125,15 +164,16 @@ for the complete contract.
 
 ## Structured operational logs
 
-Runtime v0.30.0 writes bounded newline-delimited JSON events to standard
+Runtime v0.31.0 writes bounded newline-delimited JSON events to standard
 output for startup configuration, provider configuration readiness,
 observability enablement, application and server shutdown, graceful-drain
 timeouts, invalid settings, and trace-export failures.
 
 `provider.configuration.ready` and `provider.configuration.unavailable`
 describe whether the runtime constructed a provider capability from local
-configuration. They do not probe network reachability, authenticate a
-credential, inspect a model, or alter the readiness endpoint.
+configuration. Separate `readiness.configuration.loaded` and dependency
+transition events describe the optional metadata check without exposing raw
+provider failures.
 
 Operational events exclude credentials, provider and collector endpoints,
 payloads, raw settings, rejected values, exception messages, and span data.
@@ -145,7 +185,7 @@ for the stable event table and privacy boundary.
 
 ## Portable runtime dashboards
 
-Runtime v0.30.0 provides three independently importable Grafana dashboard JSON
+Runtime v0.31.0 provides three independently importable Grafana dashboard JSON
 models in the runtime repository:
 
 - `Trussium Runtime Overview` uses Prometheus for demand, active work,
@@ -160,12 +200,12 @@ chart does not bundle, mount, import, or provision dashboard JSON and does not
 install Grafana, any observability backend, a collector, log agent, dashboard
 sidecar, custom resource, or alert. Collection, access control, retention, and
 dashboard lifecycle remain operator-owned. See the
-[runtime dashboard guide](https://github.com/trussiumhq/trussium/blob/v0.30.0/docs/DASHBOARDS.md)
+[runtime dashboard guide](https://github.com/trussiumhq/trussium/blob/v0.31.0/docs/DASHBOARDS.md)
 for import, provisioning, variables, privacy, and troubleshooting.
 
 ## Portable runtime alerts
 
-Runtime v0.30.0 provides five portable Prometheus starter alerts for missing
+Runtime v0.31.0 provides five portable Prometheus starter alerts for missing
 telemetry, elevated request failures, elevated cancellations, high p95 latency,
 and process restarts. The published severities, hold times, traffic guards, and
 thresholds are reference values that operators must tune for their SLOs,
@@ -176,7 +216,7 @@ mount, or load them and does not create a rule ConfigMap, `PrometheusRule`,
 `AlertmanagerConfig`, notification route, silence, or monitoring backend.
 Operators own rule loading, target scoping, threshold tuning, routing,
 inhibition, maintenance windows, access control, and retention. See the
-[runtime alerting guide](https://github.com/trussiumhq/trussium/blob/v0.30.0/docs/ALERTING.md)
+[runtime alerting guide](https://github.com/trussiumhq/trussium/blob/v0.31.0/docs/ALERTING.md)
 and the
-[reference rules](https://github.com/trussiumhq/trussium/blob/v0.30.0/deploy/observability/prometheus/rules/trussium-runtime-alerts.yaml)
+[reference rules](https://github.com/trussiumhq/trussium/blob/v0.31.0/deploy/observability/prometheus/rules/trussium-runtime-alerts.yaml)
 for the complete contract and runbooks.

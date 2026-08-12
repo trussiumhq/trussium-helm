@@ -153,6 +153,20 @@ assert_equal "$(kubectl --context "$context" --namespace "$namespace" get config
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
     -o jsonpath='{.data.TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME}')" \
     "trussium" "default tracing service name"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_READINESS__DEPENDENCY_CHECKS_ENABLED}')" \
+    "false" "default dependency readiness enablement"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_READINESS__DEPENDENCY_TIMEOUT_SECONDS}')" \
+    "1" "default dependency readiness timeout"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_READINESS__DEPENDENCY_CACHE_SECONDS}')" \
+    "10" "default dependency readiness cache"
+if kubectl --context "$context" --namespace "$namespace" get configmap trussium -o json | \
+    grep -q 'TRUSSIUM_READINESS__REQUIRED_MODEL'; then
+    echo "default ConfigMap unexpectedly rendered a required readiness model" >&2
+    exit 1
+fi
 
 port="$(python3 -c 'import socket; sock = socket.socket(); sock.bind(("127.0.0.1", 0)); print(sock.getsockname()[1]); sock.close()')"
 kubectl --context "$context" --namespace "$namespace" port-forward service/trussium \
@@ -192,6 +206,8 @@ kubectl --context "$context" --namespace "$namespace" logs \
 grep -q '"event":"runtime.configuration.loaded"' "$runtime_log"
 grep -q '"event":"provider.configuration.unavailable"' "$runtime_log"
 grep -q '"event":"observability.configuration.loaded"' "$runtime_log"
+grep -q '"event":"readiness.configuration.loaded"' "$runtime_log"
+grep -q '"dependency_checks_enabled":false' "$runtime_log"
 grep -q '"event":"runtime.started"' "$runtime_log"
 
 kill "$port_forward_pid" >/dev/null 2>&1 || true
@@ -204,7 +220,10 @@ helm --kube-context "$context" upgrade "$release" "$repository_root/charts/truss
     --set observability.tracing.serviceName=trussium-upgraded \
     --set-json observability.tracing.sampleRatio=0.25 \
     --set-string observability.tracing.otlpTracesEndpoint=http://collector.example:4318/v1/traces \
-    --set-json observability.tracing.otlpExportTimeoutSeconds=2.5 --wait --timeout 180s
+    --set-json observability.tracing.otlpExportTimeoutSeconds=2.5 \
+    --set-json readiness.dependencyTimeoutSeconds=0.75 \
+    --set-json readiness.dependencyCacheSeconds=3.5 \
+    --set-string readiness.requiredModel=required-model --wait --timeout 180s
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get deployment trussium \
     -o jsonpath='{.status.readyReplicas}')" "3" "ready replicas after upgrade"
 if kubectl --context "$context" --namespace "$namespace" \
@@ -227,6 +246,18 @@ assert_equal "$(kubectl --context "$context" --namespace "$namespace" get config
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
     -o jsonpath='{.data.TRUSSIUM_OBSERVABILITY__OTLP_EXPORT_TIMEOUT_SECONDS}')" \
     "2.5" "upgraded OTLP export timeout"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_READINESS__DEPENDENCY_CHECKS_ENABLED}')" \
+    "false" "upgraded dependency readiness enablement"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_READINESS__DEPENDENCY_TIMEOUT_SECONDS}')" \
+    "0.75" "upgraded dependency readiness timeout"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_READINESS__DEPENDENCY_CACHE_SECONDS}')" \
+    "3.5" "upgraded dependency readiness cache"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_READINESS__REQUIRED_MODEL}')" \
+    "required-model" "upgraded required readiness model"
 
 helm --kube-context "$context" rollback "$release" 1 --namespace "$namespace" --wait --timeout 180s
 wait_for_autoscaling
@@ -235,6 +266,14 @@ assert_equal "$(kubectl --context "$context" --namespace "$namespace" get deploy
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
     -o jsonpath='{.data.TRUSSIUM_OBSERVABILITY__TRACING_ENABLED}')" \
     "false" "tracing enablement after rollback"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_READINESS__DEPENDENCY_TIMEOUT_SECONDS}')" \
+    "1" "dependency readiness timeout after rollback"
+if kubectl --context "$context" --namespace "$namespace" get configmap trussium -o json | \
+    grep -q 'TRUSSIUM_READINESS__REQUIRED_MODEL'; then
+    echo "rollback ConfigMap retained the required readiness model" >&2
+    exit 1
+fi
 
 helm --kube-context "$context" uninstall "$release" --namespace "$namespace" --wait
 if kubectl --context "$context" --namespace "$namespace" get deployment trussium >/dev/null 2>&1; then

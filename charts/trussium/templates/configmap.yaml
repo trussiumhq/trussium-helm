@@ -11,6 +11,12 @@ data:
   TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS: {{ .Values.runtime.gracefulShutdownSeconds | quote }}
   TRUSSIUM_TIMEOUTS__PROVIDER_REQUEST_SECONDS: {{ .Values.timeouts.providerRequestSeconds | quote }}
   TRUSSIUM_TIMEOUTS__STREAM_IDLE_SECONDS: {{ .Values.timeouts.streamIdleSeconds | quote }}
+  TRUSSIUM_READINESS__DEPENDENCY_CHECKS_ENABLED: {{ .Values.readiness.dependencyChecksEnabled | quote }}
+  TRUSSIUM_READINESS__DEPENDENCY_TIMEOUT_SECONDS: {{ .Values.readiness.dependencyTimeoutSeconds | quote }}
+  TRUSSIUM_READINESS__DEPENDENCY_CACHE_SECONDS: {{ .Values.readiness.dependencyCacheSeconds | quote }}
+  {{- if .Values.readiness.requiredModel }}
+  TRUSSIUM_READINESS__REQUIRED_MODEL: {{ .Values.readiness.requiredModel | quote }}
+  {{- end }}
   TRUSSIUM_OBSERVABILITY__METRICS_ENABLED: {{ .Values.observability.metrics.enabled | quote }}
   TRUSSIUM_OBSERVABILITY__TRACING_ENABLED: {{ .Values.observability.tracing.enabled | quote }}
   TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME: {{ .Values.observability.tracing.serviceName | quote }}
