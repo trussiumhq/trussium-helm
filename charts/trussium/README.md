@@ -112,6 +112,13 @@ The chart does not accept OTLP credentials. Do not place authentication values
 in `extraConfig`; integrate collector authentication through organization-owned
 network and secret controls. The runtime excludes health and metrics traffic
 and does not attach prompts, bodies, credentials, query strings, raw URLs, or
-exception messages to spans. See the
+exception messages to spans.
+
+With runtime v0.27.0, the active provider span is propagated to supported
+OpenAI and Ollama-compatible JSON and SSE requests as W3C `traceparent` and
+optional `tracestate`. Baggage, request IDs, arbitrary inbound headers,
+payloads, and credentials remain behind the runtime privacy boundary. The
+downstream provider or gateway owns W3C extraction and its receiver span; this
+chart does not add downstream instrumentation or resources. See the
 [runtime tracing guide](https://github.com/trussiumhq/trussium/blob/main/docs/TRACING.md)
 for the complete contract.
