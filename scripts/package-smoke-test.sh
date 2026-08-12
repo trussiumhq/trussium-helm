@@ -20,8 +20,8 @@ helm show chart "$package" >/dev/null
 helm show values "$package" >/dev/null
 helm lint --strict "$package"
 
-if tar -tzf "$package" | grep -Eiq 'grafana|loki|tempo|dashboard'; then
-    echo "packaged chart must not bundle observability backends or dashboards" >&2
+if tar -tzf "$package" | grep -Eiq 'grafana|loki|tempo|dashboard|alertmanager|alerting|prometheus.*rule|alert.*rule'; then
+    echo "packaged chart must not bundle observability backends, dashboards, or alerts" >&2
     exit 1
 fi
 

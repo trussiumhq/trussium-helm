@@ -121,7 +121,7 @@ wait_for_autoscaling
 
 helm --kube-context "$context" get manifest "$release" --namespace "$namespace" >"$body"
 if grep -Eiq \
-    'grafana|loki|tempo|dashboard|^kind: (ServiceMonitor|PodMonitor|PrometheusRule)$' \
+    'grafana|loki|tempo|dashboard|alertmanager|alerting|trussium-runtime-alerts|^kind: (ServiceMonitor|PodMonitor|PrometheusRule|AlertmanagerConfig)$' \
     "$body"; then
     echo "Helm release rendered an operator-owned observability resource" >&2
     exit 1
