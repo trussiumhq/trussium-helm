@@ -169,7 +169,7 @@ if kubectl --context "$context" --namespace "$namespace" get configmap trussium 
 fi
 
 kubectl --context "$context" --namespace "$namespace" exec deployment/trussium -- \
-    python -c "from trussium.capabilities import CHAT_CAPABILITY_METADATA, CHAT_CAPABILITY_NAME, CapabilityRegistry; capability = object(); registry = CapabilityRegistry(); assert registry.register(CHAT_CAPABILITY_NAME, capability, metadata=CHAT_CAPABILITY_METADATA) is capability; assert registry.seal()[0].metadata is CHAT_CAPABILITY_METADATA"
+    python -c "import asyncio; from trussium.capabilities import CHAT_CAPABILITY_METADATA, CHAT_CAPABILITY_NAME, CapabilityExecutionPipeline, CapabilityRegistry; capability = object(); registry = CapabilityRegistry(); assert registry.register(CHAT_CAPABILITY_NAME, capability, metadata=CHAT_CAPABILITY_METADATA) is capability; assert registry.seal()[0].metadata is CHAT_CAPABILITY_METADATA; pipeline = CapabilityExecutionPipeline(registry); assert asyncio.run(pipeline.execute(CHAT_CAPABILITY_NAME, lambda resolved: asyncio.sleep(0, result=resolved))) is capability"
 
 port="$(python3 -c 'import socket; sock = socket.socket(); sock.bind(("127.0.0.1", 0)); print(sock.getsockname()[1]); sock.close()')"
 kubectl --context "$context" --namespace "$namespace" port-forward service/trussium \

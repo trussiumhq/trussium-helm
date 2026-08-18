@@ -92,7 +92,7 @@ Prometheus Adapter, ServiceMonitor, or other monitoring resources.
 
 ## Dependency-aware readiness
 
-Runtime v0.37.0 can include provider metadata access in `/health/ready`. The
+Runtime v0.38.0 can include provider metadata access in `/health/ready`. The
 chart preserves backward-compatible behavior by disabling dependency checks by
 default:
 
@@ -121,7 +121,7 @@ provider availability. The required-model identifier is non-secret ConfigMap
 data visible to anyone who can read that resource; do not place credentials,
 provider endpoints, or other secrets in readiness values. See the
 version-pinned
-[runtime health guide](https://github.com/trussiumhq/trussium/blob/v0.37.0/docs/HEALTH.md)
+[runtime health guide](https://github.com/trussiumhq/trussium/blob/v0.38.0/docs/HEALTH.md)
 for response reasons, rollout guidance, privacy boundaries, and
 troubleshooting.
 
@@ -153,7 +153,7 @@ network and secret controls. The runtime excludes health and metrics traffic
 and does not attach prompts, bodies, credentials, query strings, raw URLs, or
 exception messages to spans.
 
-With runtime v0.37.0, the active provider span is propagated to supported
+With runtime v0.38.0, the active provider span is propagated to supported
 OpenAI and Ollama-compatible JSON and SSE requests as W3C `traceparent` and
 optional `tracestate`. Baggage, request IDs, arbitrary inbound headers,
 payloads, and credentials remain behind the runtime privacy boundary. The
@@ -164,7 +164,7 @@ for the complete contract.
 
 ## Structured operational logs
 
-Runtime v0.37.0 writes bounded newline-delimited JSON events to standard
+Runtime v0.38.0 writes bounded newline-delimited JSON events to standard
 output for startup configuration, provider configuration readiness,
 observability enablement, application and server shutdown, graceful-drain
 timeouts, invalid settings, and trace-export failures.
@@ -185,16 +185,16 @@ for the stable event table and privacy boundary.
 
 ## Runtime exception hierarchy
 
-Runtime v0.37.0 adds public typed bases for Trussium-owned configuration,
+Runtime v0.38.0 adds public typed bases for Trussium-owned configuration,
 lifecycle, dependency, capability, and provider failures. This additive Python
 API changes no chart values, templates, HTTP or SSE envelopes, cancellation,
 or Kubernetes resources. See the version-pinned
-[runtime exception guide](https://github.com/trussiumhq/trussium/blob/v0.37.0/docs/ERRORS.md)
+[runtime exception guide](https://github.com/trussiumhq/trussium/blob/v0.38.0/docs/ERRORS.md)
 for stable codes, catch boundaries, compatibility, and privacy rules.
 
 ## Runtime service lifecycle
 
-Runtime v0.37.0 adds a typed asynchronous lifecycle contract for
+Runtime v0.38.0 adds a typed asynchronous lifecycle contract for
 application-scoped runtime services with declaration-order startup,
 reverse-order shutdown, partial-startup rollback, and bounded per-hook cleanup.
 This is runtime-owned composition behavior. The chart does not declare
@@ -202,24 +202,24 @@ services or hooks, add a dedicated cleanup value, or change pod termination
 behavior. Operators may pass advanced runtime environment settings through the
 existing `extraConfig` map after their own compatibility review. See the
 version-pinned
-[runtime lifecycle guide](https://github.com/trussiumhq/trussium/blob/v0.37.0/docs/LIFECYCLE.md)
+[runtime lifecycle guide](https://github.com/trussiumhq/trussium/blob/v0.38.0/docs/LIFECYCLE.md)
 for ordering, failure, cancellation, privacy, and extension boundaries.
 
 ## Runtime service registry
 
-Runtime v0.37.0 provides a public application-scoped service registry with
+Runtime v0.38.0 provides a public application-scoped service registry with
 explicit insertion-ordered registration, stable optional and required lookup,
 immutable discovery snapshots, duplicate protection, and one-way sealing
 before lifecycle composition. This is runtime-owned composition behavior. The
 chart does not declare or discover services, add registry values, load
 plugins, or change lifecycle and pod behavior.
 See the version-pinned
-[runtime service registry guide](https://github.com/trussiumhq/trussium/blob/v0.37.0/docs/SERVICE_REGISTRY.md)
+[runtime service registry guide](https://github.com/trussiumhq/trussium/blob/v0.38.0/docs/SERVICE_REGISTRY.md)
 for registration, lookup, errors, ownership, privacy, and extension boundaries.
 
 ## Runtime component health
 
-Runtime v0.37.0 lets registered application services opt into bounded component
+Runtime v0.38.0 lets registered application services opt into bounded component
 health reporting. The runtime evaluates checks concurrently under independent
 deadlines, preserves registry order, normalizes failures to stable reason
 codes, emits transition-only structured events, and exposes the informational
@@ -233,12 +233,12 @@ define component checks, health policy, recovery actions, service declarations,
 or a dedicated component-health value. Advanced runtime compositions can pass
 the bounded runtime timeout through the existing `extraConfig` map after their
 own compatibility review. See the version-pinned
-[runtime component health guide](https://github.com/trussiumhq/trussium/blob/v0.37.0/docs/COMPONENT_HEALTH.md)
+[runtime component health guide](https://github.com/trussiumhq/trussium/blob/v0.38.0/docs/COMPONENT_HEALTH.md)
 for status, aggregation, deadline, event, privacy, and extension contracts.
 
 ## Core capability registry
 
-Runtime v0.37.0 adds a provider-neutral application-scoped capability registry
+Runtime v0.38.0 adds a provider-neutral application-scoped capability registry
 with canonical names, explicit insertion-ordered registration, stable lookup,
 immutable discovery snapshots, duplicate protection, safe errors, one-way
 sealing, and application-owned execution composition. This is runtime-owned
@@ -247,24 +247,35 @@ discovery values, expose an endpoint, load plugins, or change Kubernetes
 resources, probes, settings, or provider behavior. The production runtime
 registers configured chat execution internally under `chat.completions`. See
 the version-pinned
-[runtime capability registry guide](https://github.com/trussiumhq/trussium/blob/v0.37.0/docs/CAPABILITY_REGISTRY.md)
+[runtime capability registry guide](https://github.com/trussiumhq/trussium/blob/v0.38.0/docs/CAPABILITY_REGISTRY.md)
 for identity, registration, lookup, sealing, ownership, compatibility, error,
 privacy, and extension boundaries.
 
 ## Capability metadata and discovery
 
-Runtime v0.37.0 adds frozen, bounded metadata to capability registrations and
+Runtime v0.38.0 adds frozen, bounded metadata to capability registrations and
 an ordered `GET /v1/capabilities` discovery endpoint. Provider-free deployments
 return `{"capabilities":[]}`. The response deliberately excludes provider,
 model, implementation, health, availability, and configuration data. This is a
 runtime-owned contract: the chart adds no values, templates, resources, probes,
 or permissions. See the version-pinned
-[runtime capability discovery guide](https://github.com/trussiumhq/trussium/blob/v0.37.0/docs/CAPABILITY_DISCOVERY.md)
+[runtime capability discovery guide](https://github.com/trussiumhq/trussium/blob/v0.38.0/docs/CAPABILITY_DISCOVERY.md)
 for response shape, ordering, privacy, compatibility, and ownership boundaries.
+
+## Capability execution pipeline
+
+Runtime v0.38.0 adds a sealed-registry-backed provider-neutral execution
+pipeline for asynchronous and streaming capability work. It preserves context,
+results, events, native failures, cancellation, and upstream cleanup while the
+existing chat JSON/SSE telemetry and transport contracts remain unchanged. The
+pipeline is runtime-owned and adds no chart value, template, resource, probe,
+permission, endpoint, or configuration. See the version-pinned
+[runtime capability execution pipeline guide](https://github.com/trussiumhq/trussium/blob/v0.38.0/docs/CAPABILITY_EXECUTION_PIPELINE.md)
+for composition, invocation, cleanup, compatibility, and ownership boundaries.
 
 ## Portable runtime dashboards
 
-Runtime v0.37.0 provides three independently importable Grafana dashboard JSON
+Runtime v0.38.0 provides three independently importable Grafana dashboard JSON
 models in the runtime repository:
 
 - `Trussium Runtime Overview` uses Prometheus for demand, active work,
@@ -279,12 +290,12 @@ chart does not bundle, mount, import, or provision dashboard JSON and does not
 install Grafana, any observability backend, a collector, log agent, dashboard
 sidecar, custom resource, or alert. Collection, access control, retention, and
 dashboard lifecycle remain operator-owned. See the
-[runtime dashboard guide](https://github.com/trussiumhq/trussium/blob/v0.37.0/docs/DASHBOARDS.md)
+[runtime dashboard guide](https://github.com/trussiumhq/trussium/blob/v0.38.0/docs/DASHBOARDS.md)
 for import, provisioning, variables, privacy, and troubleshooting.
 
 ## Portable runtime alerts
 
-Runtime v0.37.0 provides five portable Prometheus starter alerts for missing
+Runtime v0.38.0 provides five portable Prometheus starter alerts for missing
 telemetry, elevated request failures, elevated cancellations, high p95 latency,
 and process restarts. The published severities, hold times, traffic guards, and
 thresholds are reference values that operators must tune for their SLOs,
@@ -295,7 +306,7 @@ mount, or load them and does not create a rule ConfigMap, `PrometheusRule`,
 `AlertmanagerConfig`, notification route, silence, or monitoring backend.
 Operators own rule loading, target scoping, threshold tuning, routing,
 inhibition, maintenance windows, access control, and retention. See the
-[runtime alerting guide](https://github.com/trussiumhq/trussium/blob/v0.37.0/docs/ALERTING.md)
+[runtime alerting guide](https://github.com/trussiumhq/trussium/blob/v0.38.0/docs/ALERTING.md)
 and the
-[reference rules](https://github.com/trussiumhq/trussium/blob/v0.37.0/deploy/observability/prometheus/rules/trussium-runtime-alerts.yaml)
+[reference rules](https://github.com/trussiumhq/trussium/blob/v0.38.0/deploy/observability/prometheus/rules/trussium-runtime-alerts.yaml)
 for the complete contract and runbooks.
