@@ -169,7 +169,7 @@ if kubectl --context "$context" --namespace "$namespace" get configmap trussium 
 fi
 
 kubectl --context "$context" --namespace "$namespace" exec deployment/trussium -- \
-    python -c "from trussium.capabilities import CHAT_CAPABILITY_NAME, CapabilityRegistry; capability = object(); registry = CapabilityRegistry(); assert registry.register(CHAT_CAPABILITY_NAME, capability) is capability; assert registry.seal()[0].capability is capability"
+    python -c "from trussium.capabilities import CHAT_CAPABILITY_METADATA, CHAT_CAPABILITY_NAME, CapabilityRegistry; capability = object(); registry = CapabilityRegistry(); assert registry.register(CHAT_CAPABILITY_NAME, capability, metadata=CHAT_CAPABILITY_METADATA) is capability; assert registry.seal()[0].metadata is CHAT_CAPABILITY_METADATA"
 
 port="$(python3 -c 'import socket; sock = socket.socket(); sock.bind(("127.0.0.1", 0)); print(sock.getsockname()[1]); sock.close()')"
 kubectl --context "$context" --namespace "$namespace" port-forward service/trussium \
@@ -204,6 +204,11 @@ curl --fail --silent --show-error "http://127.0.0.1:$port/health/components" \
     --output "$body"
 assert_equal "$(cat "$body")" \
     '{"status":"ok","components":[]}' "component health response"
+
+curl --fail --silent --show-error "http://127.0.0.1:$port/v1/capabilities" \
+    --output "$body"
+assert_equal "$(cat "$body")" \
+    '{"capabilities":[]}' "capability discovery response"
 
 curl --fail --silent --show-error "http://127.0.0.1:$port/metrics" --output "$body"
 grep -q '^trussium_http_requests_active 0\.0$' "$body"

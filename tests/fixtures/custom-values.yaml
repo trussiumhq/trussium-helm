@@ -1,6 +1,6 @@
 replicaCount: 3
 image:
-  tag: "0.36.0"
+  tag: "0.37.0"
 autoscaling:
   enabled: false
 readiness:
