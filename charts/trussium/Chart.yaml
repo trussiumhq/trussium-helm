@@ -2,7 +2,7 @@ apiVersion: v2
 name: trussium
 description: Official Helm chart for deploying the Trussium AI runtime.
 type: application
-version: 0.4.4
+version: 0.4.5
 appVersion: "0.36.0"
 kubeVersion: ">=1.25.0-0"
 home: https://github.com/trussiumhq/trussium
