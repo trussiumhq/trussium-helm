@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.4.8 (2026-08-18)
+
+### Bug Fixes
+
+- Update runtime v0.39 compatibility
+  ([`bc7ee8f`](https://github.com/trussiumhq/trussium-helm/commit/bc7ee8f0b78ede89848196b9ba78badc557fc3dc))
+
+
 ## v0.4.7 (2026-08-18)
 
 ### Bug Fixes
