@@ -9,7 +9,7 @@ remains a separate project.
 
 ## Current focus
 
-The production Helm chart now carries the validated Trussium v0.32.0
+The production Helm chart now carries the validated Trussium v0.33.0
 Kubernetes contract into an independently released distribution:
 
 - Hardened autoscaled runtime pods with a two-replica availability floor.
@@ -33,36 +33,40 @@ Kubernetes contract into an independently released distribution:
   with an intentional sampling and retention policy.
 - Schema, render, package, and Kind upgrade/rollback validation for the full
   tracing configuration contract without chart-owned collector resources.
-- Runtime v0.32.0 outbound W3C `traceparent` and optional `tracestate`
+- Runtime v0.33.0 outbound W3C `traceparent` and optional `tracestate`
   propagation through the existing tracing configuration contract.
 - Explicit runtime privacy boundaries for baggage, request IDs, arbitrary
   headers, payloads, and credentials, without chart-owned receiver resources.
-- Runtime v0.32.0 structured operational events for configuration, provider
+- Runtime v0.33.0 structured operational events for configuration, provider
   readiness, lifecycle, graceful drain, and trace-export failures.
 - Default-deployment validation of safe startup events from live pod logs.
 - Explicit operational-log privacy boundaries without chart-owned collectors,
   shippers, storage backends, dashboards, alerts, sidecars, or volumes.
-- Runtime v0.32.0 portable Prometheus, Loki, and Tempo dashboard artifacts with
+- Runtime v0.33.0 portable Prometheus, Loki, and Tempo dashboard artifacts with
   stable identities and selectable operator-owned data sources.
 - Explicit dashboard ownership boundaries without chart-bundled JSON,
   ConfigMaps, sidecars, custom resources, monitoring backends, or alerts.
 - Version-pinned dashboard import, collection, privacy, and troubleshooting
   guidance linked from chart operations documentation.
-- Runtime v0.32.0 portable Prometheus starter alerts and operator runbooks for
+- Runtime v0.33.0 portable Prometheus starter alerts and operator runbooks for
   missing telemetry, request failures, cancellations, latency, and restarts.
 - Explicit alerting ownership boundaries without chart-bundled rules,
   ConfigMaps, `PrometheusRule`, `AlertmanagerConfig`, notification routing, or
   monitoring backends.
 - Version-pinned alert adoption, tuning, routing, lifecycle, privacy, and
   troubleshooting guidance linked from chart operations documentation.
-- Runtime v0.32.0 dependency-aware readiness settings for opt-in provider
+- Runtime v0.33.0 dependency-aware readiness settings for opt-in provider
   metadata and required-model checks, with bounded timeout and cache controls.
 - Backward-compatible disabled defaults, conditional required-model rendering,
   strict value validation, and live install/upgrade/rollback coverage.
 - Version-pinned health, rollout, privacy, ownership, and troubleshooting
   guidance without chart-managed credentials, providers, or model servers.
-- Runtime v0.32.0 public exception hierarchy compatibility guidance without new
+- Runtime v0.33.0 public exception hierarchy compatibility guidance without new
   chart values, templates, resources, or deployment behavior.
+- Runtime v0.33.0 service lifecycle compatibility guidance for ordered startup,
+  reverse shutdown, partial-startup rollback, bounded cleanup, cancellation,
+  and safe failure reporting without chart-owned services, hooks, values, or
+  resources.
 
 The immediate focus is runtime compatibility operations: automated runtime
 version proposals, an explicit compatibility matrix, release recovery
