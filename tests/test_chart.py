@@ -47,18 +47,18 @@ def test_chart_metadata_tracks_runtime_independently() -> None:
     assert metadata["type"] == "application"
     assert re.fullmatch(r"\d+\.\d+\.\d+", metadata["version"])
     assert metadata["version"] == project["project"]["version"]
-    assert metadata["appVersion"] == "0.39.0"
+    assert metadata["appVersion"] == "0.40.0"
     assert metadata["annotations"]["artifacthub.io/operator"] == "false"
 
 
-def test_kind_validates_runtime_v039_capability_middleware() -> None:
-    """Compatibility CI should bind the release and middleware contract."""
+def test_kind_validates_runtime_v040_capability_lifecycle() -> None:
+    """Compatibility CI should bind the release and lifecycle contract."""
     workflow = (REPOSITORY_ROOT / ".github" / "workflows" / "ci.yml").read_text()
     smoke_script = (REPOSITORY_ROOT / "scripts" / "chart-smoke-test.sh").read_text()
     root_readme = (REPOSITORY_ROOT / "README.md").read_text()
     chart_readme = (CHART / "README.md").read_text()
 
-    assert "ref: v0.39.0" in workflow
+    assert "ref: v0.40.0" in workflow
     assert '"event":"runtime.configuration.loaded"' in smoke_script
     assert '"event":"provider.configuration.unavailable"' in smoke_script
     assert '"event":"observability.configuration.loaded"' in smoke_script
@@ -72,32 +72,36 @@ def test_kind_validates_runtime_v039_capability_middleware() -> None:
     assert "pipeline.middleware == (middleware,)" in smoke_script
     assert "pipeline.execute(" in smoke_script
     assert "CapabilityRegistry" in smoke_script
+    assert "CapabilityLifecycle" in smoke_script
+    assert "CapabilityLifecycleState" in smoke_script
     assert '"http://127.0.0.1:$port/v1/capabilities"' in smoke_script
     assert "capability discovery response" in smoke_script
-    assert "blob/v0.39.0/docs/ERRORS.md" in root_readme
-    assert "blob/v0.39.0/docs/ERRORS.md" in chart_readme
-    assert "blob/v0.39.0/docs/LIFECYCLE.md" in root_readme
-    assert "blob/v0.39.0/docs/LIFECYCLE.md" in chart_readme
-    assert "blob/v0.39.0/docs/SERVICE_REGISTRY.md" in root_readme
-    assert "blob/v0.39.0/docs/SERVICE_REGISTRY.md" in chart_readme
-    assert "blob/v0.39.0/docs/COMPONENT_HEALTH.md" in root_readme
-    assert "blob/v0.39.0/docs/COMPONENT_HEALTH.md" in chart_readme
-    assert "blob/v0.39.0/docs/CAPABILITY_REGISTRY.md" in root_readme
-    assert "blob/v0.39.0/docs/CAPABILITY_REGISTRY.md" in chart_readme
-    assert "blob/v0.39.0/docs/CAPABILITY_DISCOVERY.md" in root_readme
-    assert "blob/v0.39.0/docs/CAPABILITY_DISCOVERY.md" in chart_readme
-    assert "blob/v0.39.0/docs/CAPABILITY_EXECUTION_PIPELINE.md" in root_readme
-    assert "blob/v0.39.0/docs/CAPABILITY_EXECUTION_PIPELINE.md" in chart_readme
-    assert "blob/v0.39.0/docs/CAPABILITY_MIDDLEWARE.md" in root_readme
-    assert "blob/v0.39.0/docs/CAPABILITY_MIDDLEWARE.md" in chart_readme
-    assert "blob/v0.39.0/docs/HEALTH.md" in root_readme
-    assert "blob/v0.39.0/docs/HEALTH.md" in chart_readme
-    assert "blob/v0.39.0/docs/DASHBOARDS.md" in root_readme
-    assert "blob/v0.39.0/docs/DASHBOARDS.md" in chart_readme
-    assert "blob/v0.39.0/docs/ALERTING.md" in root_readme
-    assert "blob/v0.39.0/docs/ALERTING.md" in chart_readme
-    assert "blob/v0.39.0/deploy/observability/prometheus/rules/" in root_readme
-    assert "blob/v0.39.0/deploy/observability/prometheus/rules/" in chart_readme
+    assert "blob/v0.40.0/docs/ERRORS.md" in root_readme
+    assert "blob/v0.40.0/docs/ERRORS.md" in chart_readme
+    assert "blob/v0.40.0/docs/LIFECYCLE.md" in root_readme
+    assert "blob/v0.40.0/docs/LIFECYCLE.md" in chart_readme
+    assert "blob/v0.40.0/docs/SERVICE_REGISTRY.md" in root_readme
+    assert "blob/v0.40.0/docs/SERVICE_REGISTRY.md" in chart_readme
+    assert "blob/v0.40.0/docs/COMPONENT_HEALTH.md" in root_readme
+    assert "blob/v0.40.0/docs/COMPONENT_HEALTH.md" in chart_readme
+    assert "blob/v0.40.0/docs/CAPABILITY_REGISTRY.md" in root_readme
+    assert "blob/v0.40.0/docs/CAPABILITY_REGISTRY.md" in chart_readme
+    assert "blob/v0.40.0/docs/CAPABILITY_DISCOVERY.md" in root_readme
+    assert "blob/v0.40.0/docs/CAPABILITY_DISCOVERY.md" in chart_readme
+    assert "blob/v0.40.0/docs/CAPABILITY_EXECUTION_PIPELINE.md" in root_readme
+    assert "blob/v0.40.0/docs/CAPABILITY_EXECUTION_PIPELINE.md" in chart_readme
+    assert "blob/v0.40.0/docs/CAPABILITY_MIDDLEWARE.md" in root_readme
+    assert "blob/v0.40.0/docs/CAPABILITY_MIDDLEWARE.md" in chart_readme
+    assert "blob/v0.40.0/docs/CAPABILITY_LIFECYCLE.md" in root_readme
+    assert "blob/v0.40.0/docs/CAPABILITY_LIFECYCLE.md" in chart_readme
+    assert "blob/v0.40.0/docs/HEALTH.md" in root_readme
+    assert "blob/v0.40.0/docs/HEALTH.md" in chart_readme
+    assert "blob/v0.40.0/docs/DASHBOARDS.md" in root_readme
+    assert "blob/v0.40.0/docs/DASHBOARDS.md" in chart_readme
+    assert "blob/v0.40.0/docs/ALERTING.md" in root_readme
+    assert "blob/v0.40.0/docs/ALERTING.md" in chart_readme
+    assert "blob/v0.40.0/deploy/observability/prometheus/rules/" in root_readme
+    assert "blob/v0.40.0/deploy/observability/prometheus/rules/" in chart_readme
     assert "/health/components" in smoke_script
     assert '{"status":"ok","components":[]}' in smoke_script
     assert 'helm --kube-context "$context" get manifest' in smoke_script
@@ -132,7 +136,7 @@ def test_default_render_preserves_production_runtime_contract() -> None:
     assert pod_spec["securityContext"]["runAsGroup"] == 10001
     assert pod_spec["securityContext"]["seccompProfile"]["type"] == "RuntimeDefault"
     assert pod_spec["imagePullSecrets"] == [{"name": "ghcr-credentials"}]
-    assert container["image"] == "ghcr.io/trussiumhq/trussium:0.39.0"
+    assert container["image"] == "ghcr.io/trussiumhq/trussium:0.40.0"
     assert container["ports"][0]["containerPort"] == 9000
     assert container["securityContext"]["readOnlyRootFilesystem"] is True
     assert container["securityContext"]["capabilities"]["drop"] == ["ALL"]
