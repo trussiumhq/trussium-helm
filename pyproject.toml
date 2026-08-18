@@ -1,6 +1,6 @@
 [project]
 name = "trussium-helm"
-version = "0.4.6"
+version = "0.4.7"
 description = "Development tooling for the official Trussium Helm chart."
 requires-python = ">=3.12"
 dependencies = []
