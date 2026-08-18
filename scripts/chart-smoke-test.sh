@@ -168,6 +168,9 @@ if kubectl --context "$context" --namespace "$namespace" get configmap trussium 
     exit 1
 fi
 
+kubectl --context "$context" --namespace "$namespace" exec deployment/trussium -- \
+    python -c "from trussium.capabilities import CHAT_CAPABILITY_NAME, CapabilityRegistry; capability = object(); registry = CapabilityRegistry(); assert registry.register(CHAT_CAPABILITY_NAME, capability) is capability; assert registry.seal()[0].capability is capability"
+
 port="$(python3 -c 'import socket; sock = socket.socket(); sock.bind(("127.0.0.1", 0)); print(sock.getsockname()[1]); sock.close()')"
 kubectl --context "$context" --namespace "$namespace" port-forward service/trussium \
     "$port:9000" >"$port_forward_log" 2>&1 &
