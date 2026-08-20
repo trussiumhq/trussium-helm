@@ -9,6 +9,7 @@ data:
   TRUSSIUM_RUNTIME__HOST: {{ .Values.runtime.host | quote }}
   TRUSSIUM_RUNTIME__PORT: {{ .Values.runtime.port | quote }}
   TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS: {{ .Values.runtime.gracefulShutdownSeconds | quote }}
+  TRUSSIUM_RUNTIME__CAPABILITY_AVAILABILITY_TIMEOUT_SECONDS: {{ .Values.runtime.capabilityAvailabilityTimeoutSeconds | quote }}
   TRUSSIUM_TIMEOUTS__PROVIDER_REQUEST_SECONDS: {{ .Values.timeouts.providerRequestSeconds | quote }}
   TRUSSIUM_TIMEOUTS__STREAM_IDLE_SECONDS: {{ .Values.timeouts.streamIdleSeconds | quote }}
   TRUSSIUM_READINESS__DEPENDENCY_CHECKS_ENABLED: {{ .Values.readiness.dependencyChecksEnabled | quote }}

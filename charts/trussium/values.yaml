@@ -44,6 +44,7 @@ runtime:
   host: 0.0.0.0
   port: 9000
   gracefulShutdownSeconds: 30
+  capabilityAvailabilityTimeoutSeconds: 1
 
 timeouts:
   providerRequestSeconds: 60

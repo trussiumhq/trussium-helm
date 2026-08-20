@@ -162,6 +162,9 @@ assert_equal "$(kubectl --context "$context" --namespace "$namespace" get config
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
     -o jsonpath='{.data.TRUSSIUM_READINESS__DEPENDENCY_CACHE_SECONDS}')" \
     "10" "default dependency readiness cache"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_RUNTIME__CAPABILITY_AVAILABILITY_TIMEOUT_SECONDS}')" \
+    "1" "default capability availability timeout"
 if kubectl --context "$context" --namespace "$namespace" get configmap trussium -o json | \
     grep -q 'TRUSSIUM_READINESS__REQUIRED_MODEL'; then
     echo "default ConfigMap unexpectedly rendered a required readiness model" >&2
@@ -170,6 +173,8 @@ fi
 
 kubectl --context "$context" --namespace "$namespace" exec deployment/trussium -- \
     python -c "import asyncio; from trussium.capabilities import CHAT_CAPABILITY_METADATA, CHAT_CAPABILITY_NAME, CapabilityExecutionPipeline, CapabilityInvocation, CapabilityLifecycle, CapabilityLifecycleState, CapabilityRegistry; capability = object(); managed = type('ManagedCapability', (), {'startup': lambda self: asyncio.sleep(0), 'shutdown': lambda self: asyncio.sleep(0)})(); registry = CapabilityRegistry(); assert registry.register(CHAT_CAPABILITY_NAME, capability, metadata=CHAT_CAPABILITY_METADATA) is capability; registry.register('managed', managed); assert registry.seal()[0].metadata is CHAT_CAPABILITY_METADATA; lifecycle = CapabilityLifecycle(registry); assert lifecycle.names == ('managed',); asyncio.run(lifecycle.startup()); assert lifecycle.state is CapabilityLifecycleState.STARTED; asyncio.run(lifecycle.shutdown()); assert lifecycle.state is CapabilityLifecycleState.STOPPED; invocations = []; middleware = type('SmokeMiddleware', (), {'execute': lambda self, invocation, call_next: (invocations.append(invocation), call_next())[1], 'stream': lambda self, invocation, call_next: call_next()})(); pipeline = CapabilityExecutionPipeline(registry, middleware=(middleware,)); assert asyncio.run(pipeline.execute(CHAT_CAPABILITY_NAME, lambda resolved: asyncio.sleep(0, result=resolved))) is capability; assert pipeline.middleware == (middleware,); assert len(invocations) == 1; assert isinstance(invocations[0], CapabilityInvocation); assert invocations[0].capability is capability"
+kubectl --context "$context" --namespace "$namespace" exec deployment/trussium -- \
+    python -c "import asyncio; from trussium.capabilities import CapabilityAvailabilityReporter, CapabilityAvailabilityStatus, CapabilityRegistry; registry = CapabilityRegistry(); registry.seal(); report = asyncio.run(CapabilityAvailabilityReporter(registry).report()); assert report.status is CapabilityAvailabilityStatus.AVAILABLE; assert report.capabilities == ()"
 
 port="$(python3 -c 'import socket; sock = socket.socket(); sock.bind(("127.0.0.1", 0)); print(sock.getsockname()[1]); sock.close()')"
 kubectl --context "$context" --namespace "$namespace" port-forward service/trussium \
@@ -210,6 +215,11 @@ curl --fail --silent --show-error "http://127.0.0.1:$port/v1/capabilities" \
 assert_equal "$(cat "$body")" \
     '{"capabilities":[]}' "capability discovery response"
 
+curl --fail --silent --show-error \
+    "http://127.0.0.1:$port/v1/capabilities/availability" --output "$body"
+assert_equal "$(cat "$body")" \
+    '{"status":"available","capabilities":[]}' "capability availability response"
+
 curl --fail --silent --show-error "http://127.0.0.1:$port/metrics" --output "$body"
 grep -q '^trussium_http_requests_active 0\.0$' "$body"
 grep -q '^process_start_time_seconds ' "$body"
@@ -217,6 +227,7 @@ grep -q '^process_start_time_seconds ' "$body"
 kubectl --context "$context" --namespace "$namespace" logs \
     -l app.kubernetes.io/name=trussium --tail=100 >"$runtime_log"
 grep -q '"event":"runtime.configuration.loaded"' "$runtime_log"
+grep -q '"capability_availability_timeout_seconds":1.0' "$runtime_log"
 grep -q '"event":"provider.configuration.unavailable"' "$runtime_log"
 grep -q '"event":"observability.configuration.loaded"' "$runtime_log"
 grep -q '"event":"readiness.configuration.loaded"' "$runtime_log"
@@ -236,6 +247,7 @@ helm --kube-context "$context" upgrade "$release" "$repository_root/charts/truss
     --set-json observability.tracing.otlpExportTimeoutSeconds=2.5 \
     --set-json readiness.dependencyTimeoutSeconds=0.75 \
     --set-json readiness.dependencyCacheSeconds=3.5 \
+    --set-json runtime.capabilityAvailabilityTimeoutSeconds=0.625 \
     --set-string readiness.requiredModel=required-model --wait --timeout 180s
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get deployment trussium \
     -o jsonpath='{.status.readyReplicas}')" "3" "ready replicas after upgrade"
@@ -271,6 +283,9 @@ assert_equal "$(kubectl --context "$context" --namespace "$namespace" get config
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
     -o jsonpath='{.data.TRUSSIUM_READINESS__REQUIRED_MODEL}')" \
     "required-model" "upgraded required readiness model"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_RUNTIME__CAPABILITY_AVAILABILITY_TIMEOUT_SECONDS}')" \
+    "0.625" "upgraded capability availability timeout"
 
 helm --kube-context "$context" rollback "$release" 1 --namespace "$namespace" --wait --timeout 180s
 wait_for_autoscaling
@@ -282,6 +297,9 @@ assert_equal "$(kubectl --context "$context" --namespace "$namespace" get config
 assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
     -o jsonpath='{.data.TRUSSIUM_READINESS__DEPENDENCY_TIMEOUT_SECONDS}')" \
     "1" "dependency readiness timeout after rollback"
+assert_equal "$(kubectl --context "$context" --namespace "$namespace" get configmap trussium \
+    -o jsonpath='{.data.TRUSSIUM_RUNTIME__CAPABILITY_AVAILABILITY_TIMEOUT_SECONDS}')" \
+    "1" "capability availability timeout after rollback"
 if kubectl --context "$context" --namespace "$namespace" get configmap trussium -o json | \
     grep -q 'TRUSSIUM_READINESS__REQUIRED_MODEL'; then
     echo "rollback ConfigMap retained the required readiness model" >&2
