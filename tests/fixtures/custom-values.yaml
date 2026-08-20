@@ -1,6 +1,8 @@
 replicaCount: 3
 image:
-  tag: "0.40.0"
+  tag: "0.41.0"
+runtime:
+  capabilityAvailabilityTimeoutSeconds: 0.625
 autoscaling:
   enabled: false
 readiness:

@@ -47,18 +47,18 @@ def test_chart_metadata_tracks_runtime_independently() -> None:
     assert metadata["type"] == "application"
     assert re.fullmatch(r"\d+\.\d+\.\d+", metadata["version"])
     assert metadata["version"] == project["project"]["version"]
-    assert metadata["appVersion"] == "0.40.0"
+    assert metadata["appVersion"] == "0.41.0"
     assert metadata["annotations"]["artifacthub.io/operator"] == "false"
 
 
-def test_kind_validates_runtime_v040_capability_lifecycle() -> None:
-    """Compatibility CI should bind the release and lifecycle contract."""
+def test_kind_validates_runtime_v041_capability_availability() -> None:
+    """Compatibility CI should bind the release and availability contract."""
     workflow = (REPOSITORY_ROOT / ".github" / "workflows" / "ci.yml").read_text()
     smoke_script = (REPOSITORY_ROOT / "scripts" / "chart-smoke-test.sh").read_text()
     root_readme = (REPOSITORY_ROOT / "README.md").read_text()
     chart_readme = (CHART / "README.md").read_text()
 
-    assert "ref: v0.40.0" in workflow
+    assert "ref: v0.41.0" in workflow
     assert '"event":"runtime.configuration.loaded"' in smoke_script
     assert '"event":"provider.configuration.unavailable"' in smoke_script
     assert '"event":"observability.configuration.loaded"' in smoke_script
@@ -74,34 +74,44 @@ def test_kind_validates_runtime_v040_capability_lifecycle() -> None:
     assert "CapabilityRegistry" in smoke_script
     assert "CapabilityLifecycle" in smoke_script
     assert "CapabilityLifecycleState" in smoke_script
+    assert "CapabilityAvailabilityReporter" in smoke_script
+    assert "CapabilityAvailabilityStatus" in smoke_script
     assert '"http://127.0.0.1:$port/v1/capabilities"' in smoke_script
     assert "capability discovery response" in smoke_script
-    assert "blob/v0.40.0/docs/ERRORS.md" in root_readme
-    assert "blob/v0.40.0/docs/ERRORS.md" in chart_readme
-    assert "blob/v0.40.0/docs/LIFECYCLE.md" in root_readme
-    assert "blob/v0.40.0/docs/LIFECYCLE.md" in chart_readme
-    assert "blob/v0.40.0/docs/SERVICE_REGISTRY.md" in root_readme
-    assert "blob/v0.40.0/docs/SERVICE_REGISTRY.md" in chart_readme
-    assert "blob/v0.40.0/docs/COMPONENT_HEALTH.md" in root_readme
-    assert "blob/v0.40.0/docs/COMPONENT_HEALTH.md" in chart_readme
-    assert "blob/v0.40.0/docs/CAPABILITY_REGISTRY.md" in root_readme
-    assert "blob/v0.40.0/docs/CAPABILITY_REGISTRY.md" in chart_readme
-    assert "blob/v0.40.0/docs/CAPABILITY_DISCOVERY.md" in root_readme
-    assert "blob/v0.40.0/docs/CAPABILITY_DISCOVERY.md" in chart_readme
-    assert "blob/v0.40.0/docs/CAPABILITY_EXECUTION_PIPELINE.md" in root_readme
-    assert "blob/v0.40.0/docs/CAPABILITY_EXECUTION_PIPELINE.md" in chart_readme
-    assert "blob/v0.40.0/docs/CAPABILITY_MIDDLEWARE.md" in root_readme
-    assert "blob/v0.40.0/docs/CAPABILITY_MIDDLEWARE.md" in chart_readme
-    assert "blob/v0.40.0/docs/CAPABILITY_LIFECYCLE.md" in root_readme
-    assert "blob/v0.40.0/docs/CAPABILITY_LIFECYCLE.md" in chart_readme
-    assert "blob/v0.40.0/docs/HEALTH.md" in root_readme
-    assert "blob/v0.40.0/docs/HEALTH.md" in chart_readme
-    assert "blob/v0.40.0/docs/DASHBOARDS.md" in root_readme
-    assert "blob/v0.40.0/docs/DASHBOARDS.md" in chart_readme
-    assert "blob/v0.40.0/docs/ALERTING.md" in root_readme
-    assert "blob/v0.40.0/docs/ALERTING.md" in chart_readme
-    assert "blob/v0.40.0/deploy/observability/prometheus/rules/" in root_readme
-    assert "blob/v0.40.0/deploy/observability/prometheus/rules/" in chart_readme
+    assert '"http://127.0.0.1:$port/v1/capabilities/availability"' in smoke_script
+    assert "capability availability response" in smoke_script
+    assert "blob/v0.41.0/docs/ERRORS.md" in root_readme
+    assert "blob/v0.41.0/docs/ERRORS.md" in chart_readme
+    assert "blob/v0.41.0/docs/LIFECYCLE.md" in root_readme
+    assert "blob/v0.41.0/docs/LIFECYCLE.md" in chart_readme
+    assert "blob/v0.41.0/docs/SERVICE_REGISTRY.md" in root_readme
+    assert "blob/v0.41.0/docs/SERVICE_REGISTRY.md" in chart_readme
+    assert "blob/v0.41.0/docs/COMPONENT_HEALTH.md" in root_readme
+    assert "blob/v0.41.0/docs/COMPONENT_HEALTH.md" in chart_readme
+    assert "blob/v0.41.0/docs/CAPABILITY_REGISTRY.md" in root_readme
+    assert "blob/v0.41.0/docs/CAPABILITY_REGISTRY.md" in chart_readme
+    assert "blob/v0.41.0/docs/CAPABILITY_DISCOVERY.md" in root_readme
+    assert "blob/v0.41.0/docs/CAPABILITY_DISCOVERY.md" in chart_readme
+    assert "blob/v0.41.0/docs/CAPABILITY_EXECUTION_PIPELINE.md" in root_readme
+    assert "blob/v0.41.0/docs/CAPABILITY_EXECUTION_PIPELINE.md" in chart_readme
+    assert "blob/v0.41.0/docs/CAPABILITY_MIDDLEWARE.md" in root_readme
+    assert "blob/v0.41.0/docs/CAPABILITY_MIDDLEWARE.md" in chart_readme
+    assert "blob/v0.41.0/docs/CAPABILITY_LIFECYCLE.md" in root_readme
+    assert "blob/v0.41.0/docs/CAPABILITY_LIFECYCLE.md" in chart_readme
+    assert "blob/v0.41.0/docs/CAPABILITY_AVAILABILITY.md" in root_readme
+    assert "blob/v0.41.0/docs/CAPABILITY_AVAILABILITY.md" in chart_readme
+    assert "blob/v0.41.0/docs/HEALTH.md" in root_readme
+    assert "blob/v0.41.0/docs/HEALTH.md" in chart_readme
+    assert "blob/v0.41.0/docs/DASHBOARDS.md" in root_readme
+    assert "blob/v0.41.0/docs/DASHBOARDS.md" in chart_readme
+    assert "blob/v0.41.0/docs/ALERTING.md" in root_readme
+    assert "blob/v0.41.0/docs/ALERTING.md" in chart_readme
+    assert "blob/v0.41.0/deploy/observability/prometheus/rules/" in root_readme
+    assert "blob/v0.41.0/deploy/observability/prometheus/rules/" in chart_readme
+    assert "| `0.5.0` | `0.41.x` | `>=1.25` |" in root_readme
+    assert "| `0.4.9` | `0.40.x` | `>=1.25` |" in root_readme
+    assert "| `0.4.8` | `0.39.x` | `>=1.25` |" in root_readme
+    assert '"capability_availability_timeout_seconds":1.0' in smoke_script
     assert "/health/components" in smoke_script
     assert '{"status":"ok","components":[]}' in smoke_script
     assert 'helm --kube-context "$context" get manifest' in smoke_script
@@ -136,7 +146,7 @@ def test_default_render_preserves_production_runtime_contract() -> None:
     assert pod_spec["securityContext"]["runAsGroup"] == 10001
     assert pod_spec["securityContext"]["seccompProfile"]["type"] == "RuntimeDefault"
     assert pod_spec["imagePullSecrets"] == [{"name": "ghcr-credentials"}]
-    assert container["image"] == "ghcr.io/trussiumhq/trussium:0.40.0"
+    assert container["image"] == "ghcr.io/trussiumhq/trussium:0.41.0"
     assert container["ports"][0]["containerPort"] == 9000
     assert container["securityContext"]["readOnlyRootFilesystem"] is True
     assert container["securityContext"]["capabilities"]["drop"] == ["ALL"]
@@ -165,6 +175,7 @@ def test_default_render_preserves_production_runtime_contract() -> None:
     assert budget["spec"]["maxUnavailable"] == 1
 
     config_map = resource(documents, "ConfigMap")
+    assert config_map["data"]["TRUSSIUM_RUNTIME__CAPABILITY_AVAILABILITY_TIMEOUT_SECONDS"] == "1"
     assert config_map["data"]["TRUSSIUM_READINESS__DEPENDENCY_CHECKS_ENABLED"] == "false"
     assert config_map["data"]["TRUSSIUM_READINESS__DEPENDENCY_TIMEOUT_SECONDS"] == "1"
     assert config_map["data"]["TRUSSIUM_READINESS__DEPENDENCY_CACHE_SECONDS"] == "10"
@@ -248,6 +259,9 @@ def test_custom_values_render_supported_integrations() -> None:
     assert service["metadata"]["annotations"]["example.com/service"] == "custom"
 
     config_map = resource(documents, "ConfigMap")
+    assert (
+        config_map["data"]["TRUSSIUM_RUNTIME__CAPABILITY_AVAILABILITY_TIMEOUT_SECONDS"] == "0.625"
+    )
     assert config_map["data"]["TRUSSIUM_READINESS__DEPENDENCY_CHECKS_ENABLED"] == "true"
     assert config_map["data"]["TRUSSIUM_READINESS__DEPENDENCY_TIMEOUT_SECONDS"] == "0.75"
     assert config_map["data"]["TRUSSIUM_READINESS__DEPENDENCY_CACHE_SECONDS"] == "3.5"
@@ -360,6 +374,46 @@ def test_schema_rejects_unknown_readiness_values() -> None:
     assert result.returncode != 0
     assert "unexpected" in result.stderr
     assert "Additional property" in result.stderr
+
+
+def test_schema_rejects_unknown_runtime_values() -> None:
+    result = run_helm(
+        "template",
+        "trussium",
+        str(CHART),
+        "--set",
+        "runtime.unexpected=true",
+        check=False,
+    )
+
+    assert result.returncode != 0
+    assert "unexpected" in result.stderr
+    assert "Additional property" in result.stderr
+
+
+@pytest.mark.parametrize(
+    ("flag", "value"),
+    [
+        ("--set", "0"),
+        ("--set", "-1"),
+        ("--set-string", "invalid"),
+    ],
+)
+def test_schema_rejects_invalid_capability_availability_deadline(
+    flag: str,
+    value: str,
+) -> None:
+    result = run_helm(
+        "template",
+        "trussium",
+        str(CHART),
+        flag,
+        f"runtime.capabilityAvailabilityTimeoutSeconds={value}",
+        check=False,
+    )
+
+    assert result.returncode != 0
+    assert "capabilityAvailabilityTimeoutSeconds" in result.stderr
 
 
 @pytest.mark.parametrize(
