@@ -2,6 +2,28 @@
 
 <!-- version list -->
 
+## v0.5.0 (2026-08-20)
+
+### Chores
+
+- **deps**: Bump actions/checkout from 4 to 7
+  ([`9bdd5c6`](https://github.com/trussiumhq/trussium-helm/commit/9bdd5c618f0cabd29124830330eb3f7d11b84cb2))
+
+- **deps**: Bump actions/setup-python from 5 to 7
+  ([`7c55c7f`](https://github.com/trussiumhq/trussium-helm/commit/7c55c7f07949cf992ba43fcea3fa08ab77375d50))
+
+- **deps**: Bump astral-sh/setup-uv from 5 to 7
+  ([`2093c29`](https://github.com/trussiumhq/trussium-helm/commit/2093c29978d00d219c20b74482cb97df5821d7db))
+
+- **deps**: Bump azure/setup-helm from 4 to 5
+  ([`8f99adb`](https://github.com/trussiumhq/trussium-helm/commit/8f99adba08b00e6a372d1e849e13a21cde782822))
+
+### Features
+
+- **runtime**: Support capability availability v0.41.0
+  ([`aa294d1`](https://github.com/trussiumhq/trussium-helm/commit/aa294d13ff366a7dfeefd6016cdbef9511d0b4dd))
+
+
 ## v0.4.9 (2026-08-18)
 
 ### Bug Fixes
