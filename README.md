@@ -1,5 +1,9 @@
 # Trussium Helm
 
+<p align="center">
+  <img src=".github/assets/trussium-logo.svg" alt="Trussium logo" width="144">
+</p>
+
 [![CI](https://github.com/trussiumhq/trussium-helm/actions/workflows/ci.yml/badge.svg)](https://github.com/trussiumhq/trussium-helm/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/trussiumhq/trussium-helm)](LICENSE)
 
