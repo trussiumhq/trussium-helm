@@ -139,6 +139,8 @@ runbooks, and validation across supported Kubernetes minor versions.
   dashboard or backend resources.
 - [x] Portable runtime alerting compatibility guidance without chart-owned
   rules, notification routing, or backend resources.
+- [x] Evaluate NetworkPolicy traffic and ownership contracts without rendering
+  a potentially unsafe default policy.
 - Optional NetworkPolicy after supported network contracts are defined.
 - Optional ServiceMonitor after observability endpoints stabilize.
 - Optional Ingress integration without owning certificate issuance.
