@@ -132,7 +132,7 @@ validation are available.
 
 ## Milestone 3 — Optional platform integrations
 
-**Status:** In Progress
+**Status:** Completed
 
 Integration policy: NetworkPolicy, ServiceMonitor, and Ingress remain
 organization-owned by default. A future chart opt-in must satisfy ADR 0005's
