@@ -7,10 +7,11 @@ chart="$repository_root/charts/trussium"
 custom_values="$repository_root/tests/fixtures/custom-values.yaml"
 default_render="$(mktemp)"
 custom_render="$(mktemp)"
+service_monitor_render="$(mktemp)"
 error_output="$(mktemp)"
 
 cleanup() {
-    rm -f "$default_render" "$custom_render" "$error_output"
+    rm -f "$default_render" "$custom_render" "$service_monitor_render" "$error_output"
 }
 trap cleanup EXIT INT TERM
 
@@ -58,7 +59,14 @@ helm lint --strict "$chart"
 helm lint --strict "$chart" --values "$custom_values"
 helm template trussium "$chart" --namespace trussium-system >"$default_render"
 helm template trussium "$chart" --namespace trussium-custom \
-    --values "$custom_values" >"$custom_render"
+    --values "$custom_values" \
+    --set observability.serviceMonitor.enabled=true >"$custom_render"
+helm template trussium "$chart" --namespace trussium-monitoring \
+    --set observability.serviceMonitor.enabled=true \
+    --set observability.serviceMonitor.namespace=monitoring \
+    --set observability.serviceMonitor.labels.team=platform \
+    --set observability.serviceMonitor.interval=15s \
+    --set observability.serviceMonitor.scrapeTimeout=5s >"$service_monitor_render"
 
 assert_equal "$(yq -r 'select(.kind == "Deployment") | .metadata.name' "$default_render")" \
     "trussium" "default deployment name"
@@ -111,6 +119,18 @@ assert_equal "$(yq -r 'select(.kind == "ConfigMap") | .data.TRUSSIUM_READINESS__
     "true" "custom readiness enablement"
 assert_equal "$(yq -r 'select(.kind == "ConfigMap") | .data.TRUSSIUM_OBSERVABILITY__TRACING_ENABLED' "$custom_render")" \
     "true" "custom tracing enablement"
+assert_equal "$(yq -r 'select(.kind == "ServiceMonitor") | .metadata.namespace' "$service_monitor_render")" \
+    "monitoring" "ServiceMonitor namespace"
+assert_equal "$(yq -r 'select(.kind == "ServiceMonitor") | .spec.selector.matchLabels["app.kubernetes.io/instance"]' "$service_monitor_render")" \
+    "trussium" "ServiceMonitor instance selector"
+assert_equal "$(yq -r 'select(.kind == "ServiceMonitor") | .spec.endpoints[0].port' "$service_monitor_render")" \
+    "http" "ServiceMonitor port"
+assert_equal "$(yq -r 'select(.kind == "ServiceMonitor") | .spec.endpoints[0].path' "$service_monitor_render")" \
+    "/metrics" "ServiceMonitor path"
+assert_equal "$(yq -r 'select(.kind == "ServiceMonitor") | .spec.endpoints[0].interval' "$service_monitor_render")" \
+    "15s" "ServiceMonitor interval"
+assert_equal "$(yq -r 'select(.kind == "ServiceMonitor") | .metadata.labels.team' "$service_monitor_render")" \
+    "platform" "ServiceMonitor custom label"
 
 assert_not_contains "kind: Secret" "$default_render" "default credential rendering"
 assert_not_contains "API_KEY" "$default_render" "credential key rendering"
@@ -119,6 +139,7 @@ assert_not_contains "loki" "$default_render" "Loki rendering"
 assert_not_contains "tempo" "$default_render" "Tempo rendering"
 assert_not_contains "alertmanager" "$default_render" "Alertmanager rendering"
 assert_not_contains "ServiceMonitor" "$default_render" "ServiceMonitor rendering"
+assert_not_contains "ServiceMonitor" "$custom_render" "metrics-disabled ServiceMonitor rendering"
 assert_not_contains "PrometheusRule" "$default_render" "PrometheusRule rendering"
 
 expect_template_failure "replicaCount schema" --set replicaCount=0

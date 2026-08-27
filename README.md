@@ -29,8 +29,9 @@ roadmap and ADRs for the criteria required before a chart opt-in is introduced.
   behavior.
 
 No Namespace, provider credentials, registry credentials, Ingress, Grafana,
-Prometheus, Loki, Tempo, collector, log agent, dashboard, alert, monitoring
-custom resource, or operator resource is created.
+Prometheus, Loki, Tempo, collector, log agent, dashboard, alert, or operator
+resource is created by default. ServiceMonitor is available only as an explicit
+opt-in and requires a Prometheus Operator installation.
 
 ## Prerequisites
 
