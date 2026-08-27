@@ -146,7 +146,10 @@ runbooks, and validation across supported Kubernetes minor versions.
   rendering a Prometheus Operator custom resource.
 - Optional ServiceMonitor after observability endpoints stabilize and operator
   selector requirements are agreed.
-- Optional Ingress integration without owning certificate issuance.
+- [x] Evaluate Ingress routing and certificate ownership without rendering an
+  externally exposing resource.
+- Optional Ingress integration after controller, authentication, and TLS
+  contracts are agreed without owning certificate issuance.
 
 ## Boundary
 

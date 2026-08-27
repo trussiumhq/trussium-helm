@@ -27,6 +27,7 @@ default compatible runtime image.
 | `service.type` | `ClusterIP` | Kubernetes Service type. |
 | `service.port` | `9000` | Service port. |
 | `service.annotations` | `{}` | Service annotations. |
+| Ingress | not rendered | See the repository's Ingress evaluation before composing external routing. |
 | `runtime.environment` | `production` | `TRUSSIUM_ENVIRONMENT`. |
 | `runtime.host` | `0.0.0.0` | Runtime bind host. |
 | `runtime.port` | `9000` | Container and runtime port. |
