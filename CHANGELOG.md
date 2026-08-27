@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.10.0 (2026-08-27)
+
+### Features
+
+- Add opt-in Ingress support
+  ([`9231f50`](https://github.com/trussiumhq/trussium-helm/commit/9231f50303f717c9f327b64c746ae3192c1fe508))
+
+
 ## v0.9.0 (2026-08-27)
 
 ### Features
