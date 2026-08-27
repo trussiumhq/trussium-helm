@@ -11,12 +11,8 @@ Thank you for improving the Trussium Helm chart.
 5. Run the complete validation suite before opening a pull request.
 
 ```bash
-uv sync
-uv run ruff check .
-uv run ruff format --check .
-uv run mypy tests
-uv run pytest
 scripts/helm-validate.sh
+scripts/chart-contract-test.sh
 scripts/chart-package.sh
 TRUSSIUM_RUNTIME_SOURCE=../trussium scripts/chart-smoke-test.sh
 ```
