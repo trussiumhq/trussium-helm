@@ -67,12 +67,15 @@ helm install trussium \
 
 The chart defaults to the compatible runtime release in `Chart.yaml`'s
 `appVersion`. Chart and runtime versions are intentionally independent.
+See the [compatibility policy and matrix](docs/COMPATIBILITY.md) for supported
+chart/runtime combinations and upgrade ownership.
 
 ## Compatibility
 
 | Chart release | Default runtime | Kubernetes |
 | --- | --- | --- |
-| `0.5.0` | `0.41.x` | `>=1.25` |
+| `0.6.x` | `0.67.x` | `>=1.25` |
+| `0.5.x` | `0.41.x` | `>=1.25` |
 | `0.4.9` | `0.40.x` | `>=1.25` |
 | `0.4.8` | `0.39.x` | `>=1.25` |
 | `0.4.7` | `0.38.x` | `>=1.25` |
