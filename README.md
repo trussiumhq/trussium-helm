@@ -14,6 +14,9 @@ The repository is named `trussium-helm`; the chart is named `trussium`. It
 deploys and configures the runtime only. It does **not** install or manage the
 future `trussium-operator`.
 
+Optional platform integrations remain organization-owned by default; see the
+roadmap and ADRs for the criteria required before a chart opt-in is introduced.
+
 ## What the chart installs
 
 - A hardened, autoscaled Trussium Deployment.
