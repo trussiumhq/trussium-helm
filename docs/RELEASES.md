@@ -4,6 +4,11 @@ Chart releases use Conventional Commits and Python Semantic Release. The chart
 version is independent from the Trussium runtime version. `Chart.yaml`'s
 `appVersion` records the default runtime compatibility target.
 
+When the default runtime changes, update the [compatibility policy and
+matrix](COMPATIBILITY.md), the chart contract test, and the roadmap in the same
+pull request. The change must be validated against the runtime lifecycle before
+release.
+
 On a merge to `main`, the release workflow:
 
 1. Calculates the next semantic chart version.
