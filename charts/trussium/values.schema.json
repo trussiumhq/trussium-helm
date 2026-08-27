@@ -125,7 +125,7 @@
     "observability": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["metrics", "tracing"],
+      "required": ["metrics", "serviceMonitor", "tracing"],
       "properties": {
         "metrics": {
           "type": "object",
@@ -133,6 +133,20 @@
           "required": ["enabled"],
           "properties": {
             "enabled": {"type": "boolean"}
+          }
+        },
+        "serviceMonitor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "namespace", "labels", "annotations", "interval", "scrapeTimeout", "path"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "namespace": {"type": "string"},
+            "labels": {"type": "object", "additionalProperties": {"type": "string"}},
+            "annotations": {"type": "object", "additionalProperties": {"type": "string"}},
+            "interval": {"type": "string", "pattern": "^[1-9][0-9]*(ms|s|m|h)$"},
+            "scrapeTimeout": {"type": "string", "pattern": "^[1-9][0-9]*(ms|s|m|h)$"},
+            "path": {"type": "string", "pattern": "^/[^\\s]*$"}
           }
         },
         "tracing": {

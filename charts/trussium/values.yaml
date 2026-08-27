@@ -59,6 +59,14 @@ readiness:
 observability:
   metrics:
     enabled: true
+  serviceMonitor:
+    enabled: false
+    namespace: ""
+    labels: {}
+    annotations: {}
+    interval: 30s
+    scrapeTimeout: 10s
+    path: /metrics
   tracing:
     enabled: false
     serviceName: trussium

@@ -40,6 +40,13 @@ default compatible runtime image.
 | `readiness.dependencyCacheSeconds` | `10` | Positive success and failure cache window. |
 | `readiness.requiredModel` | `""` | Exact model to require; empty lists provider models. |
 | `observability.metrics.enabled` | `true` | Expose runtime metrics at `/metrics`. |
+| `observability.serviceMonitor.enabled` | `false` | Optionally create a Prometheus Operator ServiceMonitor. |
+| `observability.serviceMonitor.namespace` | `""` | Optional ServiceMonitor namespace. |
+| `observability.serviceMonitor.labels` | `{}` | Labels for the Prometheus selector. |
+| `observability.serviceMonitor.annotations` | `{}` | ServiceMonitor annotations. |
+| `observability.serviceMonitor.interval` | `30s` | Prometheus scrape interval. |
+| `observability.serviceMonitor.scrapeTimeout` | `10s` | Prometheus scrape timeout. |
+| `observability.serviceMonitor.path` | `/metrics` | Metrics endpoint path. |
 | `observability.tracing.enabled` | `false` | Enable runtime OpenTelemetry tracing and OTLP export. |
 | `observability.tracing.serviceName` | `trussium` | OpenTelemetry `service.name`. |
 | `observability.tracing.sampleRatio` | `1.0` | Parent-based root sampling probability from zero through one. |
@@ -89,10 +96,11 @@ replicaCount: 3
 ```
 
 Runtime metrics remain independently configurable through
-`observability.metrics.enabled`. The chart does not install Prometheus,
-Prometheus Adapter, ServiceMonitor, or other monitoring resources.
-See the repository's [ServiceMonitor evaluation](../../docs/SERVICEMONITOR.md)
-for the scraping contract and future opt-in requirements.
+`observability.metrics.enabled`. The chart does not install Prometheus or
+Prometheus Adapter. ServiceMonitor is available only when explicitly enabled
+and requires the Prometheus Operator CRD and controller. See the repository's
+[ServiceMonitor evaluation](../../docs/SERVICEMONITOR.md) for the scraping
+contract and opt-in requirements.
 
 ## Dependency-aware readiness
 

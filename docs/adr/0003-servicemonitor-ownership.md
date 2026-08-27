@@ -1,6 +1,6 @@
 # ADR 0003: Defer chart-owned ServiceMonitor
 
-- Status: Accepted
+- Status: Superseded by ADR 0006
 - Date: 2026-08-27
 
 ## Context
