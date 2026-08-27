@@ -59,6 +59,12 @@ default compatible runtime image.
 | `autoscaling.behavior` | production defaults | Scale velocity and stabilization rules. |
 | `providerSecret.name` | `trussium-provider` | Existing provider Secret; empty disables it. |
 | `providerSecret.optional` | `true` | Allow startup when that Secret is absent. |
+| `networkPolicy.enabled` | `false` | Optionally render an explicit ingress/egress NetworkPolicy. |
+| `networkPolicy.ingress.from` | `[]` | Ingress peers; empty when enabled denies ingress peers. |
+| `networkPolicy.ingress.ports` | `[{port: 9000, protocol: TCP}]` | Allowed runtime ingress ports. |
+| `networkPolicy.egress.to` | `[]` | Provider/collector egress peers. |
+| `networkPolicy.egress.ports` | `[]` | Provider/collector egress ports. |
+| `networkPolicy.egress.dns.to` | `[]` | Cluster DNS peers for UDP/TCP port 53. |
 | `extraConfig` | `{}` | Additional non-secret ConfigMap entries. |
 | `extraEnv` | `[]` | Additional container environment entries. |
 | `extraEnvFrom` | `[]` | Additional container environment sources. |

@@ -1,6 +1,6 @@
 # ADR 0002: Defer chart-owned NetworkPolicy
 
-- Status: Accepted
+- Status: Superseded by ADR 0007
 - Date: 2026-08-27
 
 ## Context

@@ -144,9 +144,9 @@ contract, safety, and validation requirements.
   dashboard or backend resources.
 - [x] Portable runtime alerting compatibility guidance without chart-owned
   rules, notification routing, or backend resources.
-- [x] Evaluate NetworkPolicy traffic and ownership contracts without rendering
-  a potentially unsafe default policy.
-- Optional NetworkPolicy after supported network contracts are defined.
+- [x] Evaluate NetworkPolicy traffic and ownership contracts.
+- [x] Add a disabled-by-default NetworkPolicy opt-in with explicit peers and
+  egress destinations; keep CNI enforcement organization-owned.
 - [x] Evaluate the ServiceMonitor scraping and ownership contract.
 - [x] Add a disabled-by-default ServiceMonitor opt-in with explicit selectors
   and scrape settings; keep the Prometheus Operator organization-owned.

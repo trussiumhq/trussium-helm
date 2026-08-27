@@ -5,13 +5,15 @@ set -eu
 repository_root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 chart="$repository_root/charts/trussium"
 custom_values="$repository_root/tests/fixtures/custom-values.yaml"
+network_policy_values="$repository_root/tests/fixtures/network-policy-values.yaml"
 default_render="$(mktemp)"
 custom_render="$(mktemp)"
 service_monitor_render="$(mktemp)"
+network_policy_render="$(mktemp)"
 error_output="$(mktemp)"
 
 cleanup() {
-    rm -f "$default_render" "$custom_render" "$service_monitor_render" "$error_output"
+    rm -f "$default_render" "$custom_render" "$service_monitor_render" "$network_policy_render" "$error_output"
 }
 trap cleanup EXIT INT TERM
 
@@ -67,6 +69,9 @@ helm template trussium "$chart" --namespace trussium-monitoring \
     --set observability.serviceMonitor.labels.team=platform \
     --set observability.serviceMonitor.interval=15s \
     --set observability.serviceMonitor.scrapeTimeout=5s >"$service_monitor_render"
+helm lint --strict "$chart" --values "$network_policy_values"
+helm template trussium "$chart" --namespace trussium-network \
+    --values "$network_policy_values" >"$network_policy_render"
 
 assert_equal "$(yq -r 'select(.kind == "Deployment") | .metadata.name' "$default_render")" \
     "trussium" "default deployment name"
@@ -140,6 +145,15 @@ assert_not_contains "tempo" "$default_render" "Tempo rendering"
 assert_not_contains "alertmanager" "$default_render" "Alertmanager rendering"
 assert_not_contains "ServiceMonitor" "$default_render" "ServiceMonitor rendering"
 assert_not_contains "ServiceMonitor" "$custom_render" "metrics-disabled ServiceMonitor rendering"
+assert_not_contains "NetworkPolicy" "$default_render" "default NetworkPolicy rendering"
+assert_equal "$(yq -r 'select(.kind == "NetworkPolicy") | .spec.policyTypes[0]' "$network_policy_render")" \
+    "Ingress" "NetworkPolicy ingress policy type"
+assert_equal "$(yq -r 'select(.kind == "NetworkPolicy") | .spec.ingress[0].from[0].namespaceSelector.matchLabels["kubernetes.io/metadata.name"]' "$network_policy_render")" \
+    "ingress-nginx" "NetworkPolicy ingress namespace"
+assert_equal "$(yq -r 'select(.kind == "NetworkPolicy") | .spec.egress[0].ports[0].port' "$network_policy_render")" \
+    "443" "NetworkPolicy provider port"
+assert_equal "$(yq -r 'select(.kind == "NetworkPolicy") | .spec.egress[1].ports[0].port' "$network_policy_render")" \
+    "53" "NetworkPolicy DNS port"
 assert_not_contains "PrometheusRule" "$default_render" "PrometheusRule rendering"
 
 expect_template_failure "replicaCount schema" --set replicaCount=0

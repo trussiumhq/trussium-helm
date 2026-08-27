@@ -1,8 +1,8 @@
 # NetworkPolicy evaluation
 
-The chart does not render a NetworkPolicy today. This is intentional: the
-runtime's network destinations are deployment-specific and a restrictive,
-chart-owned policy could make a valid installation unavailable.
+The chart can optionally render a NetworkPolicy, disabled by default. The
+runtime's network destinations are deployment-specific, so enabling the policy
+requires explicit ingress peers and egress destinations.
 
 ## Traffic contract
 
@@ -21,7 +21,7 @@ remain outside the chart's ownership boundary.
 
 ## Minimum contract for a future opt-in policy
 
-A future policy must be disabled by default and must let operators explicitly
+A policy is disabled by default and lets operators explicitly
 provide:
 
 - allowed ingress namespace and pod selectors;
@@ -29,14 +29,14 @@ provide:
 - the cluster DNS namespace/pod selector and port 53 UDP/TCP;
 - an explicit metrics-scraper selector, if metrics ingress is restricted.
 
-It must render only `networking.k8s.io/v1`, preserve the runtime Service and
+It renders only `networking.k8s.io/v1`, preserves the runtime Service and
 probe paths, and include contract tests for disabled, ingress-only, and
 fully-configured modes. It must not silently add `0.0.0.0/0` egress as a
 security policy disguised as a default.
 
 ## Current recommendation
 
-Keep NetworkPolicy organization-owned until those selectors and destinations
-are known. Teams that require a deny-by-default posture can apply a policy in
-their platform repository, using the traffic table above and validating it
-against their provider and observability topology.
+Enable the chart policy only when those selectors and destinations are known.
+Teams with more complex requirements can still apply organization-owned
+policies in their platform repository, using the traffic table above and
+validating them against their provider and observability topology.
