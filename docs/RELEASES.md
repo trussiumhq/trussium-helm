@@ -38,3 +38,65 @@ If semantic versioning succeeds but publication fails, rerun the release job
 for the release commit. Do not create a second version commit. If the OCI push
 alone fails, download the GitHub release asset, authenticate with a package
 write token, validate the package, and push that exact artifact.
+
+## Recovery runbooks
+
+### Versioning or release-commit failure
+
+1. Open the failed workflow run and record the source commit and the last
+   published tag.
+2. Check whether the release commit and tag already exist:
+
+   ```bash
+   git fetch --tags origin
+   git show vVERSION
+   gh release view vVERSION
+   ```
+
+3. If no tag was created, rerun the failed release job for the original `main`
+   commit. Do not amend `pyproject.toml`, `Chart.yaml`, or create a manual tag.
+4. If the tag exists, do not rerun versioning. Continue with the publication
+   recovery steps below.
+
+### GitHub release asset failure
+
+If the release commit and tag exist but the GitHub release or chart asset is
+missing, rerun only the publish step for that tag:
+
+```bash
+uv run semantic-release publish --tag vVERSION
+gh release view vVERSION
+gh release download vVERSION --pattern 'trussium-*.tgz' --dir /tmp/trussium-release
+scripts/package-smoke-test.sh /tmp/trussium-release
+```
+
+Use the release commit’s generated package. Never rebuild a package from a
+different commit and attach it to an existing release.
+
+### OCI publication failure
+
+1. Confirm the GitHub release asset and validate it locally:
+
+   ```bash
+   gh release download vVERSION --pattern 'trussium-*.tgz' --dir /tmp/trussium-release
+   scripts/package-smoke-test.sh /tmp/trussium-release
+   ```
+
+2. Authenticate with a token that has package write access:
+
+   ```bash
+   printf '%s' "$GHCR_TOKEN" | helm registry login ghcr.io \
+     --username GITHUB_USERNAME --password-stdin
+   ```
+
+3. Push the exact downloaded artifact:
+
+   ```bash
+   helm push /tmp/trussium-release/trussium-VERSION.tgz \
+     oci://ghcr.io/trussiumhq/charts
+   helm pull oci://ghcr.io/trussiumhq/charts/trussium --version VERSION
+   ```
+
+Do not bump the chart version or rerun semantic-release for an OCI-only
+failure. Escalate if the package digest differs from the GitHub release asset
+or if the registry reports an existing conflicting version.
