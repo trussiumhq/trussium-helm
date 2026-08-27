@@ -150,10 +150,10 @@ contract, safety, and validation requirements.
 - [x] Evaluate the ServiceMonitor scraping and ownership contract.
 - [x] Add a disabled-by-default ServiceMonitor opt-in with explicit selectors
   and scrape settings; keep the Prometheus Operator organization-owned.
-- [x] Evaluate Ingress routing and certificate ownership without rendering an
-  externally exposing resource.
-- Optional Ingress integration after controller, authentication, and TLS
-  contracts are agreed without owning certificate issuance.
+- [x] Evaluate Ingress routing and certificate ownership.
+- [x] Add a disabled-by-default Ingress opt-in with explicit hosts, paths, and
+  existing TLS Secret references; keep controller and certificate lifecycle
+  organization-owned.
 
 ## Boundary
 

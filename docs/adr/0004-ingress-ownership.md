@@ -1,6 +1,6 @@
 # ADR 0004: Defer chart-owned Ingress
 
-- Status: Accepted
+- Status: Superseded by ADR 0009
 - Date: 2026-08-27
 
 ## Context

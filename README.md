@@ -29,7 +29,7 @@ roadmap and ADRs for the criteria required before a chart opt-in is introduced.
   behavior.
 - Optional, explicitly configured NetworkPolicy for ingress and egress control.
 
-No Namespace, provider credentials, registry credentials, Ingress, Grafana,
+No Namespace, provider credentials, registry credentials, Grafana,
 Prometheus, Loki, Tempo, collector, log agent, dashboard, alert, or operator
 resource is created by default. NetworkPolicy and ServiceMonitor are available
 only as explicit opt-ins; ServiceMonitor additionally requires a Prometheus

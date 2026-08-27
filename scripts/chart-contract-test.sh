@@ -6,14 +6,16 @@ repository_root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 chart="$repository_root/charts/trussium"
 custom_values="$repository_root/tests/fixtures/custom-values.yaml"
 network_policy_values="$repository_root/tests/fixtures/network-policy-values.yaml"
+ingress_values="$repository_root/tests/fixtures/ingress-values.yaml"
 default_render="$(mktemp)"
 custom_render="$(mktemp)"
 service_monitor_render="$(mktemp)"
 network_policy_render="$(mktemp)"
+ingress_render="$(mktemp)"
 error_output="$(mktemp)"
 
 cleanup() {
-    rm -f "$default_render" "$custom_render" "$service_monitor_render" "$network_policy_render" "$error_output"
+    rm -f "$default_render" "$custom_render" "$service_monitor_render" "$network_policy_render" "$ingress_render" "$error_output"
 }
 trap cleanup EXIT INT TERM
 
@@ -72,6 +74,9 @@ helm template trussium "$chart" --namespace trussium-monitoring \
 helm lint --strict "$chart" --values "$network_policy_values"
 helm template trussium "$chart" --namespace trussium-network \
     --values "$network_policy_values" >"$network_policy_render"
+helm lint --strict "$chart" --values "$ingress_values"
+helm template trussium "$chart" --namespace trussium-ingress \
+    --values "$ingress_values" >"$ingress_render"
 
 assert_equal "$(yq -r 'select(.kind == "Deployment") | .metadata.name' "$default_render")" \
     "trussium" "default deployment name"
@@ -154,6 +159,17 @@ assert_equal "$(yq -r 'select(.kind == "NetworkPolicy") | .spec.egress[0].ports[
     "443" "NetworkPolicy provider port"
 assert_equal "$(yq -r 'select(.kind == "NetworkPolicy") | .spec.egress[1].ports[0].port' "$network_policy_render")" \
     "53" "NetworkPolicy DNS port"
+assert_not_contains "kind: Ingress" "$default_render" "default Ingress rendering"
+assert_equal "$(yq -r 'select(.kind == "Ingress") | .spec.ingressClassName' "$ingress_render")" \
+    "nginx" "Ingress class"
+assert_equal "$(yq -r 'select(.kind == "Ingress") | .spec.rules[0].host' "$ingress_render")" \
+    "api.example.com" "Ingress host"
+assert_equal "$(yq -r 'select(.kind == "Ingress") | .spec.rules[0].http.paths[0].path' "$ingress_render")" \
+    "/api" "Ingress path"
+assert_equal "$(yq -r 'select(.kind == "Ingress") | .spec.rules[0].http.paths[0].backend.service.port.name' "$ingress_render")" \
+    "http" "Ingress service port"
+assert_equal "$(yq -r 'select(.kind == "Ingress") | .spec.tls[0].secretName' "$ingress_render")" \
+    "trussium-tls" "Ingress TLS Secret"
 assert_not_contains "PrometheusRule" "$default_render" "PrometheusRule rendering"
 
 expect_template_failure "replicaCount schema" --set replicaCount=0
