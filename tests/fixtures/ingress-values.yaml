@@ -1,0 +1,14 @@
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+  hosts:
+    - host: api.example.com
+      paths:
+        - path: /api
+          pathType: Prefix
+  tls:
+    - hosts:
+        - api.example.com
+      secretName: trussium-tls

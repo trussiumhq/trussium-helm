@@ -18,6 +18,7 @@
     "observability",
     "autoscaling",
     "providerSecret",
+    "ingress",
     "networkPolicy",
     "startupProbe",
     "livenessProbe",
@@ -253,6 +254,53 @@
               "properties": {
                 "to": {"type": "array", "items": {"type": "object"}}
               }
+            }
+          }
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "className", "annotations", "hosts", "tls"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "className": {"type": "string"},
+        "annotations": {"type": "object", "additionalProperties": {"type": "string"}},
+        "hosts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["host", "paths"],
+            "properties": {
+              "host": {"type": "string"},
+              "paths": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["path", "pathType"],
+                  "properties": {
+                    "path": {"type": "string", "pattern": "^/[^\\s]*$"},
+                    "pathType": {"type": "string", "enum": ["Exact", "Prefix", "ImplementationSpecific"]}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["hosts", "secretName"],
+            "properties": {
+              "hosts": {"type": "array", "items": {"type": "string"}},
+              "secretName": {"type": "string", "minLength": 1}
             }
           }
         }

@@ -1,6 +1,6 @@
 # Ingress evaluation
 
-The chart does not render an Ingress today. Ingress resources depend on a
+The chart can optionally render an Ingress, disabled by default. Ingress resources depend on a
 cluster's controller, class, hostname, authentication gateway, and certificate
 management policy. A default chart Ingress could expose the runtime or conflict
 with an existing routing layer.
@@ -23,20 +23,21 @@ timeouts, and observability requirements are defined.
 
 ## Minimum contract for a future opt-in resource
 
-A future chart option must be disabled by default and require explicit:
+The chart option is disabled by default and requires explicit:
 
 - `ingressClassName`, hostnames, and paths;
 - an existing TLS Secret reference, without rendering certificate material;
 - controller-specific annotations supplied by the operator;
 - whether health and metrics paths are exposed externally.
 
-The option must render `networking.k8s.io/v1` only, target the named `http`
+The option renders `networking.k8s.io/v1` only, targets the named `http`
 Service port, and include tests for disabled, HTTP, and TLS configurations. It
 must not install an ingress controller, Certificate or Issuer resources,
 authentication gateway, DNS record, or public load balancer.
 
 ## Current recommendation
 
-Use an organization-owned Ingress in the platform repository, fronted by the
-approved controller and authentication layer. Keep `/health/*` and `/metrics`
-internal unless the platform explicitly needs external access.
+Enable the chart option only when the approved controller and authentication
+layer are known. Keep `/health/*` and `/metrics` internal unless the platform
+explicitly needs external access. Teams with more complex routing can continue
+to use an organization-owned Ingress in their platform repository.
