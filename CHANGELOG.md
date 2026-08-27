@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.9.0 (2026-08-27)
+
+### Features
+
+- Add opt-in NetworkPolicy support
+  ([`c72ac90`](https://github.com/trussiumhq/trussium-helm/commit/c72ac90b90ebde2f4521d4232a0c747283d4872c))
+
+
 ## v0.8.0 (2026-08-27)
 
 ### Continuous Integration
