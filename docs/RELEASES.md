@@ -9,6 +9,12 @@ matrix](COMPATIBILITY.md), the chart contract test, and the roadmap in the same
 pull request. The change must be validated against the runtime lifecycle before
 release.
 
+The weekly Runtime Compatibility Proposal workflow checks the latest runtime
+release and opens a review-only pull request when the target changes. A
+maintainer must review the generated compatibility diff and lifecycle checks;
+the workflow never merges, publishes, or deploys automatically. Use its manual
+`runtime_version` input to rehearse a proposal for a specific release.
+
 On a merge to `main`, the release workflow:
 
 1. Calculates the next semantic chart version.
