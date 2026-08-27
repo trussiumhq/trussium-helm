@@ -31,7 +31,9 @@ default runtime image with the chart. A runtime compatibility update must also
 update `Chart.yaml`, the contract test image assertion, this matrix, and the
 release notes or roadmap entry in the same change.
 
-The chart requires Kubernetes `>=1.25`. Kubernetes support is a chart contract,
+The chart requires Kubernetes `>=1.25`. CI renders and strictly lints against
+Kubernetes `1.25`, `1.29`, and `1.31`, and confirms that `1.24` is rejected by
+the chart contract. Kubernetes support is a chart contract,
 not a runtime version guarantee; cluster admission, storage, networking, and
 provider connectivity remain operator responsibilities.
 
