@@ -142,7 +142,10 @@ runbooks, and validation across supported Kubernetes minor versions.
 - [x] Evaluate NetworkPolicy traffic and ownership contracts without rendering
   a potentially unsafe default policy.
 - Optional NetworkPolicy after supported network contracts are defined.
-- Optional ServiceMonitor after observability endpoints stabilize.
+- [x] Evaluate the ServiceMonitor scraping and ownership contract without
+  rendering a Prometheus Operator custom resource.
+- Optional ServiceMonitor after observability endpoints stabilize and operator
+  selector requirements are agreed.
 - Optional Ingress integration without owning certificate issuance.
 
 ## Boundary
