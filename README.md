@@ -69,6 +69,8 @@ The chart defaults to the compatible runtime release in `Chart.yaml`'s
 `appVersion`. Chart and runtime versions are intentionally independent.
 See the [compatibility policy and matrix](docs/COMPATIBILITY.md) for supported
 chart/runtime combinations and upgrade ownership.
+NetworkPolicy ownership and the requirements for a future opt-in policy are
+documented in the [NetworkPolicy evaluation](docs/NETWORK_POLICY.md).
 
 ## Compatibility
 
