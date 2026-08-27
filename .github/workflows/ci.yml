@@ -66,3 +66,32 @@ jobs:
         env:
           TRUSSIUM_KIND_CLUSTER: trussium-helm-ci
           TRUSSIUM_RUNTIME_SOURCE: ${{ github.workspace }}/runtime
+
+  kubernetes:
+    name: Kubernetes ${{ matrix.kube-version }} Compatibility
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        kube-version: ["1.25.0", "1.29.0", "1.31.0"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install Helm
+        uses: azure/setup-helm@v5
+        with:
+          version: v3.16.3
+
+      - name: Validate supported Kubernetes version
+        run: scripts/kubernetes-version-test.sh "${{ matrix.kube-version }}"
+
+      - name: Confirm unsupported Kubernetes version is rejected
+        if: matrix.kube-version == '1.25.0'
+        run: |
+          if helm template trussium charts/trussium --kube-version 1.24.0 >/dev/null 2>&1; then
+            echo "Kubernetes 1.24.0 unexpectedly passed the chart support floor" >&2
+            exit 1
+          fi
