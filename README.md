@@ -458,15 +458,12 @@ externally managed Secrets in place.
 
 ## Development
 
-The repository uses Python 3.12+, uv, Ruff, strict MyPy, Pytest, and Helm.
+The repository uses Helm and portable shell tooling for chart validation. Python
+is used only by the semantic-release packaging workflow.
 
 ```bash
-uv sync
-uv run ruff check .
-uv run ruff format --check .
-uv run mypy tests
-uv run pytest
 scripts/helm-validate.sh
+scripts/chart-contract-test.sh
 scripts/chart-package.sh
 ```
 

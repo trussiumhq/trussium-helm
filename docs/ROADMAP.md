@@ -116,6 +116,7 @@ runbooks, and validation across supported Kubernetes minor versions.
 - [x] Production `trussium` application chart.
 - [x] Complete value schema and operator documentation.
 - [x] Automated quality, rendering, and Kind lifecycle validation.
+- [x] Helm-native chart contract validation with no Python test harness.
 - [x] Independent semantic release and OCI publication.
 
 ## Milestone 2 — Runtime compatibility operations
