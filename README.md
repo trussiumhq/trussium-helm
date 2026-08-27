@@ -240,7 +240,8 @@ Do not manually scale the Deployment while the HPA is enabled. Tune the HPA
 bounds and target instead. See the
 [runtime metrics guide](https://github.com/trussiumhq/trussium/blob/main/docs/METRICS.md)
 for the bounded Prometheus-compatible metric contract and optional custom
-metrics extension point.
+metrics extension point. The chart's ServiceMonitor ownership decision is
+documented in [the ServiceMonitor evaluation](docs/SERVICEMONITOR.md).
 
 OpenTelemetry tracing is disabled by default. The chart can render runtime
 trace enablement, service name, parent-based sample ratio, OTLP HTTP/protobuf

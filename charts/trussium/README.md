@@ -90,6 +90,8 @@ replicaCount: 3
 Runtime metrics remain independently configurable through
 `observability.metrics.enabled`. The chart does not install Prometheus,
 Prometheus Adapter, ServiceMonitor, or other monitoring resources.
+See the repository's [ServiceMonitor evaluation](../../docs/SERVICEMONITOR.md)
+for the scraping contract and future opt-in requirements.
 
 ## Dependency-aware readiness
 
