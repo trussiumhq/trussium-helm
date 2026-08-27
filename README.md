@@ -467,7 +467,7 @@ scripts/chart-contract-test.sh
 scripts/chart-package.sh
 ```
 
-The complete Kind lifecycle test builds runtime `v0.41.0` from a neighboring
+The complete Kind lifecycle test builds runtime `v0.67.0` from a neighboring
 checkout, installs pinned Metrics Server v0.8.1, and validates install, live
 autoscaling, runtime metrics, tracing configuration, operational startup logs,
 default component health, ordered capability discovery, empty capability
