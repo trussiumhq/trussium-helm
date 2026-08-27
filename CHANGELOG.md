@@ -2,6 +2,36 @@
 
 <!-- version list -->
 
+## v0.8.0 (2026-08-27)
+
+### Continuous Integration
+
+- Validate supported Kubernetes versions
+  ([`9d25b5d`](https://github.com/trussiumhq/trussium-helm/commit/9d25b5dac4def886cbc865fc761443f8348b7a8a))
+
+### Documentation
+
+- Add release recovery runbooks
+  ([`90b350a`](https://github.com/trussiumhq/trussium-helm/commit/90b350ac808035993c2acaeb4800a58d8a02357b))
+
+- Evaluate Ingress ownership contract
+  ([`eefe676`](https://github.com/trussiumhq/trussium-helm/commit/eefe676a678c0c80d834e5df4e734c4433210a42))
+
+- Evaluate NetworkPolicy ownership contract
+  ([`d86feee`](https://github.com/trussiumhq/trussium-helm/commit/d86feeed240409fc6a04afdc080ab5f9f2e75b94))
+
+- Evaluate ServiceMonitor ownership contract
+  ([`2e911a3`](https://github.com/trussiumhq/trussium-helm/commit/2e911a3e900c8cd1a85c19e54617757eb636e1f4))
+
+- Reconcile integration ownership policy
+  ([`7cfcbe7`](https://github.com/trussiumhq/trussium-helm/commit/7cfcbe74a7b0d6ad0bfd1bd9a4211eea12bee579))
+
+### Features
+
+- Add opt-in ServiceMonitor support
+  ([`3bedc87`](https://github.com/trussiumhq/trussium-helm/commit/3bedc87fbde572fc3555c889c8ed89304fa1a633))
+
+
 ## v0.7.0 (2026-08-27)
 
 ### Documentation
