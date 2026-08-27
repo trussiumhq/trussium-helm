@@ -123,7 +123,8 @@ runbooks, and validation across supported Kubernetes minor versions.
 
 **Status:** In Progress
 
-- Automate proposals for newly released compatible runtime versions.
+- [x] Automate review-only proposals for newly released compatible runtime
+  versions.
 - [x] Publish an explicit chart-to-runtime compatibility policy and matrix.
 - Add release recovery and OCI publication recovery runbooks.
 - Validate supported Kubernetes minor versions in CI.

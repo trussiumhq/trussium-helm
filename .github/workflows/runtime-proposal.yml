@@ -1,0 +1,65 @@
+name: Runtime Compatibility Proposal
+
+on:
+  schedule:
+    - cron: "17 7 * * 1"
+  workflow_dispatch:
+    inputs:
+      runtime_version:
+        description: "Optional runtime version to propose (for example 0.68.0)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  propose:
+    name: Propose compatible runtime update
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install Helm
+        uses: azure/setup-helm@v5
+        with:
+          version: v3.16.3
+
+      - name: Install yq
+        uses: mikefarah/yq@v4.45.1
+
+      - name: Propose runtime update
+        env:
+          TRUSSIUM_RUNTIME_VERSION: ${{ inputs.runtime_version }}
+        run: scripts/propose-runtime-update.sh
+
+      - name: Validate proposal
+        run: |
+          scripts/helm-validate.sh
+          scripts/chart-contract-test.sh
+
+      - name: Open compatibility proposal
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/runtime-compatibility
+          delete-branch: true
+          title: "feat: update runtime compatibility"
+          commit-message: "feat: update runtime compatibility"
+          body: |
+            Closes #49
+
+            ## Summary
+
+            Propose the latest Trussium runtime compatibility target.
+
+            ## Validation
+
+            - `scripts/helm-validate.sh`
+            - `scripts/chart-contract-test.sh`
+
+            This proposal is review-only. It does not merge, publish, or deploy
+            a runtime automatically.
