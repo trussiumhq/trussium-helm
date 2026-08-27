@@ -2,6 +2,28 @@
 
 <!-- version list -->
 
+## v0.6.0 (2026-08-27)
+
+### Chores
+
+- Replace Python chart tests with Helm validation
+  ([`d70e49f`](https://github.com/trussiumhq/trussium-helm/commit/d70e49f10b340d8858b6985dba42f2d8e5ff5b84))
+
+### Documentation
+
+- Add project logo
+  ([`4513d6e`](https://github.com/trussiumhq/trussium-helm/commit/4513d6e5c5f42b9aef407007d39935bc8cd23fbc))
+
+- Add project maintainers
+  ([`26ceef0`](https://github.com/trussiumhq/trussium-helm/commit/26ceef0f81da30542295d46b6d6bd4e7c3640680))
+
+### Features
+
+- Update default runtime compatibility to v0.67.0
+  ([#44](https://github.com/trussiumhq/trussium-helm/pull/44),
+  [`c09cb1a`](https://github.com/trussiumhq/trussium-helm/commit/c09cb1a485fa71fab4fa13e046077f806855782c))
+
+
 ## v0.5.0 (2026-08-20)
 
 ### Chores
