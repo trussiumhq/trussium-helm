@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.7.0 (2026-08-27)
+
+### Documentation
+
+- Publish chart runtime compatibility matrix
+  ([`e45469c`](https://github.com/trussiumhq/trussium-helm/commit/e45469c0f6bc330c958b5887ce6a780f69f5552d))
+
+### Features
+
+- Automate runtime compatibility proposals
+  ([`30fb8d6`](https://github.com/trussiumhq/trussium-helm/commit/30fb8d68f8b6bfa084ae5e00701d0d721091f78c))
+
+
 ## v0.6.0 (2026-08-27)
 
 ### Chores
