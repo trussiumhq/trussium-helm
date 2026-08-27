@@ -18,6 +18,7 @@
     "observability",
     "autoscaling",
     "providerSecret",
+    "networkPolicy",
     "startupProbe",
     "livenessProbe",
     "readinessProbe",
@@ -223,6 +224,40 @@
         "optional": {"type": "boolean"}
       }
     },
+    "networkPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "ingress", "egress"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "ingress": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["from", "ports"],
+          "properties": {
+            "from": {"type": "array", "items": {"type": "object"}},
+            "ports": {"type": "array", "items": {"$ref": "#/definitions/networkPort"}}
+          }
+        },
+        "egress": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["to", "ports", "dns"],
+          "properties": {
+            "to": {"type": "array", "items": {"type": "object"}},
+            "ports": {"type": "array", "items": {"$ref": "#/definitions/networkPort"}},
+            "dns": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["to"],
+              "properties": {
+                "to": {"type": "array", "items": {"type": "object"}}
+              }
+            }
+          }
+        }
+      }
+    },
     "extraConfig": {"type": "object", "additionalProperties": {"type": ["string", "number", "boolean"]}},
     "extraEnv": {"type": "array", "items": {"type": "object"}},
     "extraEnvFrom": {"type": "array", "items": {"type": "object"}},
@@ -313,6 +348,15 @@
         "periodSeconds": {"type": "integer", "minimum": 1},
         "timeoutSeconds": {"type": "integer", "minimum": 1},
         "failureThreshold": {"type": "integer", "minimum": 1}
+      }
+    },
+    "networkPort": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["port", "protocol"],
+      "properties": {
+        "port": {"type": ["integer", "string"]},
+        "protocol": {"type": "string", "enum": ["TCP", "UDP", "SCTP"]}
       }
     }
   }

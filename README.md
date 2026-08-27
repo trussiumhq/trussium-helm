@@ -27,11 +27,13 @@ roadmap and ADRs for the criteria required before a chart opt-in is introduced.
 - A PodDisruptionBudget and topology-spread constraints.
 - An `autoscaling/v2` HorizontalPodAutoscaler with conservative production
   behavior.
+- Optional, explicitly configured NetworkPolicy for ingress and egress control.
 
 No Namespace, provider credentials, registry credentials, Ingress, Grafana,
 Prometheus, Loki, Tempo, collector, log agent, dashboard, alert, or operator
-resource is created by default. ServiceMonitor is available only as an explicit
-opt-in and requires a Prometheus Operator installation.
+resource is created by default. NetworkPolicy and ServiceMonitor are available
+only as explicit opt-ins; ServiceMonitor additionally requires a Prometheus
+Operator installation.
 
 ## Prerequisites
 

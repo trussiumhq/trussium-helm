@@ -105,6 +105,19 @@ providerSecret:
   name: trussium-provider
   optional: true
 
+networkPolicy:
+  enabled: false
+  ingress:
+    from: []
+    ports:
+      - port: 9000
+        protocol: TCP
+  egress:
+    to: []
+    ports: []
+    dns:
+      to: []
+
 extraConfig: {}
 extraEnv: []
 extraEnvFrom: []
