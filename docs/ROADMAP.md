@@ -103,9 +103,10 @@ Kubernetes contract into an independently released distribution:
   probes, without chart-owned declarations, resources, permissions, CRDs, or
   operator behavior.
 
-The immediate focus is runtime compatibility operations: automated runtime
-version proposals, an explicit compatibility matrix, release recovery
-runbooks, and validation across supported Kubernetes minor versions.
+The immediate focus is optional platform integration contracts and their
+organization-owned composition. Chart opt-ins will be considered only after a
+stable contract, explicit values, disabled defaults, render tests, and live
+validation are available.
 
 ## Milestone 1 — Repository and chart foundation
 
@@ -121,7 +122,7 @@ runbooks, and validation across supported Kubernetes minor versions.
 
 ## Milestone 2 — Runtime compatibility operations
 
-**Status:** In Progress
+**Status:** Completed
 
 - [x] Automate review-only proposals for newly released compatible runtime
   versions.
@@ -132,6 +133,10 @@ runbooks, and validation across supported Kubernetes minor versions.
 ## Milestone 3 — Optional platform integrations
 
 **Status:** In Progress
+
+Integration policy: NetworkPolicy, ServiceMonitor, and Ingress remain
+organization-owned by default. A future chart opt-in must satisfy ADR 0005's
+contract, safety, and validation requirements.
 
 - [x] Configurable HorizontalPodAutoscaler support after runtime metrics exist.
 - [x] Configurable OpenTelemetry runtime tracing after instrumentation exists.
