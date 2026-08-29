@@ -84,7 +84,7 @@ Ingress and certificate ownership are covered in the
 
 | Chart release | Default runtime | Kubernetes |
 | --- | --- | --- |
-| `0.6.x` | `0.67.x` | `>=1.25` |
+| `0.10.x` | `0.98.x` | `>=1.25` |
 | `0.5.x` | `0.41.x` | `>=1.25` |
 | `0.4.9` | `0.40.x` | `>=1.25` |
 | `0.4.8` | `0.39.x` | `>=1.25` |
@@ -481,7 +481,7 @@ scripts/chart-contract-test.sh
 scripts/chart-package.sh
 ```
 
-The complete Kind lifecycle test builds runtime `v0.67.0` from a neighboring
+The complete Kind lifecycle test builds runtime `v0.98.0` from a neighboring
 checkout, installs pinned Metrics Server v0.8.1, and validates install, live
 autoscaling, runtime metrics, tracing configuration, operational startup logs,
 default component health, ordered capability discovery, empty capability
