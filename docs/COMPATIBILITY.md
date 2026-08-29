@@ -8,7 +8,7 @@ records its default runtime target in `charts/trussium/Chart.yaml` under
 
 | Chart release | Default runtime image | Kubernetes |
 | --- | --- | --- |
-| `0.6.x` | `0.67.x` | `>=1.25` |
+| `0.10.x` | `0.98.x` | `>=1.25` |
 | `0.5.x` | `0.41.x` | `>=1.25` |
 | `0.4.9` | `0.40.x` | `>=1.25` |
 | `0.4.8` | `0.39.x` | `>=1.25` |
