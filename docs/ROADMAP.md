@@ -9,7 +9,7 @@ remains a separate project.
 
 ## Current focus
 
-The production Helm chart now carries the validated Trussium v0.98.0
+The production Helm chart now carries the validated Trussium v0.98.1
 Kubernetes contract into an independently released distribution:
 
 - Hardened autoscaled runtime pods with a two-replica availability floor.
