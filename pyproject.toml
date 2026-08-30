@@ -20,7 +20,7 @@ branch = "main"
 tag_format = "v{version}"
 commit_message = "chore(release): {version}"
 allow_zero_version = true
-major_on_zero = false
+major_on_zero = true
 build_command = """
 uv lock
 git add uv.lock
