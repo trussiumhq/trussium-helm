@@ -2,6 +2,30 @@
 
 <!-- version list -->
 
+## v1.0.0 (2026-08-31)
+
+### Chores
+
+- Align chart runtime compatibility
+  ([`7e83514`](https://github.com/trussiumhq/trussium-helm/commit/7e83514946e4a7bff115d3167f53673f1cf8c459))
+
+- Align chart with runtime 0.98.1
+  ([`ce91f0e`](https://github.com/trussiumhq/trussium-helm/commit/ce91f0e0978873f1f00205b1658b55f57f3e03a1))
+
+- Enable reviewed major releases
+  ([`4368821`](https://github.com/trussiumhq/trussium-helm/commit/436882154a95b7662ed6abbe13022a09534ac06c))
+
+### Documentation
+
+- Mark platform integrations milestone complete
+  ([`7d3d08b`](https://github.com/trussiumhq/trussium-helm/commit/7d3d08bcb815e7358b2767dc8af3b5511e0eb4dc))
+
+### Features
+
+- Declare stable 1.0.0 Helm chart contract
+  ([`e5cb15b`](https://github.com/trussiumhq/trussium-helm/commit/e5cb15b5991c7c5eb1df1f71980743fe3ed514b4))
+
+
 ## v0.10.0 (2026-08-27)
 
 ### Features
