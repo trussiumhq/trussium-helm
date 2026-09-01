@@ -43,7 +43,7 @@ jobs:
           scripts/chart-contract-test.sh
 
       - name: Open compatibility proposal
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           branch: automation/runtime-compatibility
           delete-branch: true
