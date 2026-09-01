@@ -89,7 +89,7 @@ assert_equal "$(yq -r 'select(.kind == "Deployment") | .spec.template.spec.secur
 assert_equal "$(yq -r 'select(.kind == "Deployment") | .spec.template.spec.securityContext.seccompProfile.type' "$default_render")" \
     "RuntimeDefault" "seccomp profile"
 assert_equal "$(yq -r 'select(.kind == "Deployment") | .spec.template.spec.containers[0].image' "$default_render")" \
-    "ghcr.io/trussiumhq/trussium:1.0.0" "default runtime image"
+    "ghcr.io/trussiumhq/trussium:1.17.0" "default runtime image"
 assert_equal "$(yq -r 'select(.kind == "Deployment") | .spec.template.spec.containers[0].ports[0].containerPort' "$default_render")" \
     "9000" "runtime port"
 assert_equal "$(yq -r 'select(.kind == "Deployment") | .spec.template.spec.containers[0].securityContext.readOnlyRootFilesystem' "$default_render")" \
