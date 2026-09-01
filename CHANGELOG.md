@@ -2,6 +2,24 @@
 
 <!-- version list -->
 
+## v1.1.0 (2026-09-01)
+
+### Chores
+
+- **deps**: Bump mikefarah/yq from 4.45.1 to 4.53.6
+  ([#80](https://github.com/trussiumhq/trussium-helm/pull/80),
+  [`935c7ed`](https://github.com/trussiumhq/trussium-helm/commit/935c7ed10bd3102e97e71089ae1879644eb04a62))
+
+- **deps**: Bump peter-evans/create-pull-request from 7 to 8
+  ([#79](https://github.com/trussiumhq/trussium-helm/pull/79),
+  [`136a572`](https://github.com/trussiumhq/trussium-helm/commit/136a57238a92798400f8b0a278be6ad650830172))
+
+### Features
+
+- Align chart with runtime v1.17.0
+  ([`c931f07`](https://github.com/trussiumhq/trussium-helm/commit/c931f079ed045fbc82dcf8b45567f20d8299996b))
+
+
 ## v1.0.0 (2026-08-31)
 
 ### Chores
