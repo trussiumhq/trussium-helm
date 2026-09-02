@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.2.0 (2026-09-02)
+
+### Features
+
+- Align chart with runtime v1.22.0 ([#83](https://github.com/trussiumhq/trussium-helm/pull/83),
+  [`1e510b2`](https://github.com/trussiumhq/trussium-helm/commit/1e510b2cf2a9db2c9bc4009d61fc8e184455b6a1))
+
+
 ## v1.1.0 (2026-09-01)
 
 ### Chores
