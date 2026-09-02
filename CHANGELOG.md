@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.3.0 (2026-09-02)
+
+### Documentation
+
+- Mark chart 1.2 release as published ([#85](https://github.com/trussiumhq/trussium-helm/pull/85),
+  [`6cf4b6f`](https://github.com/trussiumhq/trussium-helm/commit/6cf4b6fd1fbd348137aac21b70771c89adbe9067))
+
+### Features
+
+- Align chart with runtime v1.22.0 ([#85](https://github.com/trussiumhq/trussium-helm/pull/85),
+  [`6cf4b6f`](https://github.com/trussiumhq/trussium-helm/commit/6cf4b6fd1fbd348137aac21b70771c89adbe9067))
+
+
 ## v1.2.0 (2026-09-02)
 
 ### Features
