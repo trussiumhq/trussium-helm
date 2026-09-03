@@ -5,7 +5,7 @@
 </p>
 
 [![CI](https://github.com/trussiumhq/trussium-helm/actions/workflows/ci.yml/badge.svg)](https://github.com/trussiumhq/trussium-helm/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/trussiumhq/trussium-helm)](LICENSE)
+[![License](https://img.shields.io/github/license/trussiumhq/trussium-helm)](https://github.com/trussiumhq/trussium-helm/blob/main/LICENSE)
 
 The official, independently versioned Helm chart for deploying the
 [Trussium](https://github.com/trussiumhq/trussium) AI runtime to Kubernetes.
@@ -500,4 +500,4 @@ and the [roadmap](docs/ROADMAP.md).
 
 ## License
 
-Apache License 2.0. See [LICENSE](LICENSE).
+Apache License 2.0. See the [LICENSE](https://github.com/trussiumhq/trussium-helm/blob/main/LICENSE).
