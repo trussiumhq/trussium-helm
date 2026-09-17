@@ -45,6 +45,7 @@ jobs:
       - name: Open compatibility proposal
         uses: peter-evans/create-pull-request@v8
         with:
+          token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
           branch: automation/runtime-compatibility
           delete-branch: true
           title: "feat: update runtime compatibility"

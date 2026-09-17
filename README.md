@@ -84,7 +84,7 @@ Ingress and certificate ownership are covered in the
 
 | Chart release | Default runtime | Kubernetes |
 | --- | --- | --- |
-| `1.3.x` | `1.22.x` | `>=1.25` |
+| `1.3.x` | `1.27.x` | `>=1.25` |
 | `1.2.x` | `1.22.x` | `>=1.25` |
 | `1.0.x` | `1.17.x` | `>=1.25` |
 | `0.5.x` | `0.41.x` | `>=1.25` |
