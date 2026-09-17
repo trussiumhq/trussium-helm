@@ -9,7 +9,7 @@ remains a separate project.
 
 ## Current focus
 
-The production Helm chart now carries the validated Trussium v1.22.0
+The production Helm chart now carries the validated Trussium v1.27.0
 Kubernetes contract into an independently released distribution:
 
 - Hardened autoscaled runtime pods with a two-replica availability floor.
@@ -35,7 +35,7 @@ Kubernetes contract into an independently released distribution:
   tracing configuration contract without chart-owned collector resources.
 - Stable 1.0.0 chart metadata targeting the Trussium runtime 1.0.0 image.
 - A documented stable release contract for Kubernetes runtime deployments.
-- Runtime v1.22.0 outbound W3C `traceparent` and optional `tracestate`
+- Runtime v1.27.0 outbound W3C `traceparent` and optional `tracestate`
   propagation through the existing tracing configuration contract.
 - Explicit runtime privacy boundaries for baggage, request IDs, arbitrary
   headers, payloads, and credentials, without chart-owned receiver resources.
