@@ -2,6 +2,23 @@
 
 <!-- version list -->
 
+## v1.3.1 (2026-09-17)
+
+### Bug Fixes
+
+- **compat**: Target runtime 1.27.0
+  ([`afcade3`](https://github.com/trussiumhq/trussium-helm/commit/afcade3c346ec4fe43dda1d0831df32f56709b07))
+
+### Documentation
+
+- Fix generated license links ([#89](https://github.com/trussiumhq/trussium-helm/pull/89),
+  [`2e13ca2`](https://github.com/trussiumhq/trussium-helm/commit/2e13ca2045c98471d4005b5900eeaf4b58f4b9d4))
+
+- Refresh release references and roadmap
+  ([#87](https://github.com/trussiumhq/trussium-helm/pull/87),
+  [`272dc70`](https://github.com/trussiumhq/trussium-helm/commit/272dc70b59d2244a1fbe07c331644a38f87c8340))
+
+
 ## v1.3.0 (2026-09-02)
 
 ### Documentation
