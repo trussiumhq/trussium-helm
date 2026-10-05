@@ -43,3 +43,22 @@ Overriding `image.tag` is supported for operators who have validated that
 runtime against the chart. The chart cannot guarantee compatibility for an
 arbitrary image override and does not automatically select or install runtime
 versions.
+
+## Automated compatibility proposals
+
+The weekly `Runtime Compatibility Proposal` workflow opens a review-only pull
+request when it finds a runtime target that differs from the chart metadata.
+It runs on a schedule or a maintainer's manual dispatch and does not merge,
+publish, or deploy changes. The generated pull request must pass the chart
+validation checks and be reviewed before merge.
+
+The workflow needs repository Actions settings to permit workflow tokens to
+create pull requests. If a run fails with `GitHub Actions is not permitted to
+create or approve pull requests`, an administrator can either enable the
+repository setting **Allow GitHub Actions to create and approve pull
+requests**, or configure a dedicated fine-grained `PAT` repository secret with
+only `Contents: read/write` and `Pull requests: read/write` access. The
+workflow already limits its token permissions to `contents: write` and
+`pull-requests: write`; do not grant broader organization-wide permissions.
+After changing the setting or secret, rerun the failed workflow and verify
+that the proposal PR is opened without being merged automatically.

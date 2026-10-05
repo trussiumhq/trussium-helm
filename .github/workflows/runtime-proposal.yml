@@ -51,11 +51,12 @@ jobs:
           title: "feat: update runtime compatibility"
           commit-message: "feat: update runtime compatibility"
           body: |
-            Closes #49
-
             ## Summary
 
             Propose the latest Trussium runtime compatibility target.
+
+            This automated proposal workflow was introduced for #49. Review
+            and merge compatibility proposals manually after validation.
 
             ## Validation
 
