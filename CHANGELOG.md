@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v1.3.2 (2026-10-05)
+
+### Bug Fixes
+
+- Document compatibility proposal permissions
+  ([#93](https://github.com/trussiumhq/trussium-helm/pull/93),
+  [`4e5ebb2`](https://github.com/trussiumhq/trussium-helm/commit/4e5ebb2f6ef1e02637562a613c6686f3f0803109))
+
+
 ## v1.3.1 (2026-09-17)
 
 ### Bug Fixes
