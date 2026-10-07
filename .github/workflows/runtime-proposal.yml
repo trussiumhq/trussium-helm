@@ -30,7 +30,7 @@ jobs:
           version: v3.16.3
 
       - name: Install yq
-        uses: mikefarah/yq@v4.53.6
+        uses: mikefarah/yq@v4.54.1
 
       - name: Propose runtime update
         env:
